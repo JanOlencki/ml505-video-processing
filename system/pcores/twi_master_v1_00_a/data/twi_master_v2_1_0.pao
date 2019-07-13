@@ -1,0 +1,10 @@
+##############################################################################
+## Filename:          C:/Users/jan/XilinxISE/ML505VideoProcessing/system/pcores/twi_master_v1_00_a/data/twi_master_v2_1_0.pao
+## Description:       Peripheral Analysis Order
+## Date:              Sat Jul 13 21:33:27 2019 (by Create and Import Peripheral Wizard)
+##############################################################################
+
+lib proc_common_v3_00_a  all 
+lib plbv46_slave_single_v1_01_a  all 
+lib twi_master_v1_00_a twiMasterLogic verilog
+lib twi_master_v1_00_a twi_master vhdl
