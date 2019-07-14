@@ -3,17 +3,12 @@
 //-----------------------------------------------------------------------------
 
 module systemTop (
-    i_system_clk,
-    i_system_rst,
-    iobuf_system_gpio,
-    iobuf_system_twi_0_sda,
-    obuf_system_twi_0_scl
+   input i_system_clk,
+   input i_system_rst,
+   inout [0:7] iobuf_system_gpio,
+   inout iobuf_system_twi_0_sda,
+   output obuf_system_twi_0_scl
 );
-input i_system_clk;
-input i_system_rst;
-inout [0:7] iobuf_system_gpio;
-inout iobuf_system_twi_0_sda;
-output obuf_system_twi_0_scl;
 
 wire [0:7] i_system_gpio;
 wire [0:7] o_system_gpio;

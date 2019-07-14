@@ -1,0 +1,30 @@
+
+# PlanAhead Generated physical constraints 
+
+NET "i_system_clk" LOC = AH15;
+NET "i_system_rst" LOC = E9;
+NET "iobuf_system_twi_0_sda" LOC = T29;
+NET "obuf_system_twi_0_scl" LOC = U27;
+NET "iobuf_system_gpio[0]" LOC = H18;
+NET "iobuf_system_gpio[1]" LOC = L18;
+NET "iobuf_system_gpio[2]" LOC = G15;
+NET "iobuf_system_gpio[3]" LOC = AD26;
+NET "iobuf_system_gpio[4]" LOC = U25;
+NET "iobuf_system_gpio[5]" LOC = AG27;
+NET "iobuf_system_gpio[6]" LOC = AF25;
+NET "iobuf_system_gpio[7]" LOC = AF26;
+
+# PlanAhead Generated IO constraints 
+
+NET "i_system_clk" IOSTANDARD = LVCMOS33;
+NET "i_system_rst" IOSTANDARD = LVDCI_33;
+NET "iobuf_system_gpio[0]" IOSTANDARD = LVCMOS25;
+NET "iobuf_system_gpio[1]" IOSTANDARD = LVCMOS25;
+NET "iobuf_system_gpio[2]" IOSTANDARD = LVCMOS25;
+NET "iobuf_system_gpio[3]" IOSTANDARD = LVCMOS18;
+NET "iobuf_system_gpio[4]" IOSTANDARD = LVCMOS18;
+NET "iobuf_system_gpio[5]" IOSTANDARD = LVCMOS18;
+NET "iobuf_system_gpio[6]" IOSTANDARD = LVCMOS18;
+NET "iobuf_system_gpio[7]" IOSTANDARD = LVCMOS18;
+NET "iobuf_system_twi_0_sda" IOSTANDARD = LVCMOS18;
+NET "obuf_system_twi_0_scl" IOSTANDARD = LVCMOS18;
