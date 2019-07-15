@@ -1,62 +1,62 @@
 module twiMasterLogic #(
-    parameter DATA_WIDTH = 32,
-    parameter REG_COUNT = 1
+    parameter PLB_DATA_WIDTH = 32,
+    parameter PLB_REG_COUNT = 1
 )(
     input iSda,
     output oSda,
     output oScl,
 
-    input iClk,
-    input iReset,
-    input [0 : DATA_WIDTH - 1] iData,
-    input [0 : DATA_WIDTH/8 - 1] iBE,
-    input [0 : REG_COUNT - 1] iRdCE,
-    input [0 : REG_COUNT - 1] iWrCE,
-    output reg [0 : DATA_WIDTH - 1] oData,
-    output reg oRdAck,
-    output reg oWrAck,
-    output oError
+    input iPlbClk,
+    input iPlbReset,
+    input [0 : PLB_DATA_WIDTH - 1] iPlbData,
+    input [0 : PLB_DATA_WIDTH/8 - 1] iPlbBE,
+    input [0 : PLB_REG_COUNT - 1] iPlbRdCE,
+    input [0 : PLB_REG_COUNT - 1] iPlbWrCE,
+    output reg [0 : PLB_DATA_WIDTH - 1] oPlbData,
+    output reg oPlbRdAck,
+    output reg oPlbWrAck,
+    output oPlbError
 );
 
 reg [7:0] regStatus;
 reg [7:0] regControl;
-reg [7:0] regAdrress;
+reg [7:0] regAddress;
 reg [7:0] regData;
 
-always @(posedge iClk)
+always @(posedge iPlbClk)
 begin
-    if(iReset == 1) begin
-        regData <= 8'hDA;
-        regAdrress <= 8'hAD;
-        regControl <= 8'hC0;
-        regStatus <= 8'hF0;
+    if(iPlbReset == 1) begin
+        regData <= 8'h00;
+        regAddress <= 8'h00;
+        regControl <= 8'h00;
+        regStatus <= 8'h00;
     end
     else begin
-        if(iWrCE == 1) begin
-            if(iBE[0] == 1)
-                regData <= iData[0:7];
-            if(iBE[1] == 1)
-                regAdrress <= iData[8:15];
-            if(iBE[2] == 1)
-                regControl <= iData[16:23];
-            if(iBE[3] == 1)
-                regStatus <= iData[24:31];
-            oWrAck <= 1;
+        if(iPlbWrCE == 1) begin
+            if(iPlbBE[0] == 1)
+                regData <= iPlbData[0:7];
+            if(iPlbBE[1] == 1)
+                regAddress <= iPlbData[8:15];
+            if(iPlbBE[2] == 1)
+                regControl <= iPlbData[16:23];
+            if(iPlbBE[3] == 1)
+                regStatus <= iPlbData[24:31];
+            oPlbWrAck <= 1;
         end
         else
-            oWrAck <= 0;
+            oPlbWrAck <= 0;
     end
 end
 
-always @(posedge iClk) begin 
-    if(iRdCE == 1) begin
-        oData <= ({regData, regAdrress, regControl, regStatus});
-        oRdAck <= 1;
+always @(posedge iPlbClk) begin 
+    if(iPlbRdCE == 1) begin
+        oPlbData <= ({regData, regAddress, regControl, regStatus});
+        oPlbRdAck <= 1;
     end
     else
-        oRdAck <= 0;
+        oPlbRdAck <= 0;
 end
 
-assign IP2Bus_Error = 0;
+assign oError = 0;
 
 endmodule

@@ -130,24 +130,24 @@ architecture IMP of twi_master is
     signal user_IP2Bus_Error : std_logic;
 
     component twiMasterLogic is generic (
-        DATA_WIDTH : integer := 32;
-        REG_COUNT : integer := 1
+        PLB_DATA_WIDTH : integer := 32;
+        PLB_REG_COUNT : integer := 1
     ); port (
         iSda : in std_logic;
         oSda : out std_logic;
         oScl : out std_logic;
 
         -- Bus protocol ports
-        iClk : in std_logic;
-        iReset : in std_logic;
-        iData : in std_logic_vector(0 to DATA_WIDTH - 1);
-        iBE : in std_logic_vector(0 to DATA_WIDTH/8 - 1);
-        iRdCE : in std_logic_vector(0 to REG_COUNT - 1);
-        iWrCE : in std_logic_vector(0 to REG_COUNT - 1);
-        oData : out std_logic_vector(0 to DATA_WIDTH - 1);
-        oRdAck : out std_logic;
-        oWrAck : out std_logic;
-        oError : out std_logic
+        iPlbClk : in std_logic;
+        iPlbReset : in std_logic;
+        iPlbData : in std_logic_vector(0 to PLB_DATA_WIDTH - 1);
+        iPlbBE : in std_logic_vector(0 to PLB_DATA_WIDTH/8 - 1);
+        iPlbRdCE : in std_logic_vector(0 to PLB_REG_COUNT - 1);
+        iPlbWrCE : in std_logic_vector(0 to PLB_REG_COUNT - 1);
+        oPlbData : out std_logic_vector(0 to PLB_DATA_WIDTH - 1);
+        oPlbRdAck : out std_logic;
+        oPlbWrAck : out std_logic;
+        oPlbError : out std_logic
     );
     end component twiMasterLogic;
 
@@ -223,23 +223,23 @@ architecture IMP of twi_master is
     );
 
     impl_twiMasterLogic : component twiMasterLogic generic map (
-        DATA_WIDTH => USER_SLV_DWIDTH,
-        REG_COUNT => USER_NUM_REG
+        PLB_DATA_WIDTH => USER_SLV_DWIDTH,
+        PLB_REG_COUNT => USER_NUM_REG
     ) port map (
         iSda => i_sda,
         oSda => o_sda,
         oScl => o_scl,
 
-        iClk => ipif_Bus2IP_Clk,
-        iReset => ipif_Bus2IP_Reset,
-        iData => ipif_Bus2IP_Data,
-        iBE => ipif_Bus2IP_BE,
-        iRdCE => user_Bus2IP_RdCE,
-        iWrCE => user_Bus2IP_WrCE,
-        oData => user_IP2Bus_Data,
-        oRdAck => user_IP2Bus_RdAck,
-        oWrAck => user_IP2Bus_WrAck,
-        oError => user_IP2Bus_Error
+        iPlbClk => ipif_Bus2IP_Clk,
+        iPlbReset => ipif_Bus2IP_Reset,
+        iPlbData => ipif_Bus2IP_Data,
+        iPlbBE => ipif_Bus2IP_BE,
+        iPlbRdCE => user_Bus2IP_RdCE,
+        iPlbWrCE => user_Bus2IP_WrCE,
+        oPlbData => user_IP2Bus_Data,
+        oPlbRdAck => user_IP2Bus_RdAck,
+        oPlbWrAck => user_IP2Bus_WrAck,
+        oPlbError => user_IP2Bus_Error
     );
 
     ipif_IP2Bus_Data <= user_IP2Bus_Data;
