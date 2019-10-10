@@ -92,7 +92,7 @@ architecture IMP of twi_master is
         ZERO_ADDR_PAD & USER_SLV_HIGHADDR
     );
 
-    constant USER_SLV_NUM_REG : integer := 1;
+    constant USER_SLV_NUM_REG : integer := 2;
     constant USER_NUM_REG : integer := USER_SLV_NUM_REG;
 
     constant IPIF_ARD_NUM_CE_ARRAY : INTEGER_ARRAY_TYPE := (

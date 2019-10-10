@@ -25,9 +25,9 @@ end
 endtask
 
 task plbReadByte;
-input [0 : PLB_ADDRESS_WIDTH - 1] address; // Adrress like address in microblaze memory model
-output [0:7] data;
-reg [0:1] byteIndex;
+    input [0 : PLB_ADDRESS_WIDTH - 1] address; // Address like address in microblaze memory model
+    output [0:7] data;
+    reg [0:1] byteIndex;
 begin    
     byteIndex = address[PLB_ADDRESS_WIDTH - 2 : PLB_ADDRESS_WIDTH - 1];
     @(posedge iPlbClk)
@@ -44,8 +44,8 @@ end
 endtask
 
 task plbReadWord;
-input [0 : PLB_ADDRESS_WIDTH - 1] address; // Adrress like address in microblaze memory model
-output [0:31] data;
+    input [0 : PLB_ADDRESS_WIDTH - 1] address; // Address like address in microblaze memory model
+    output [0:31] data;
 begin    
     @(posedge iPlbClk)
     iPlbBE = 4'hF;
@@ -60,9 +60,9 @@ end
 endtask
 
 task plbWriteByte;
-input [0 : PLB_ADDRESS_WIDTH - 1] address; // Adrress like address in microblaze memory model
-input [0:7] data;
-reg [0:1] byteIndex;
+    input [0 : PLB_ADDRESS_WIDTH - 1] address; // Adrress like address in microblaze memory model
+    input [0:7] data;
+    reg [0:1] byteIndex;
 begin    
     byteIndex = address[PLB_ADDRESS_WIDTH - 2 : PLB_ADDRESS_WIDTH - 1];
     @(posedge iPlbClk)
@@ -81,8 +81,8 @@ end
 endtask
 
 task plbWriteWord;
-input [0 : PLB_ADDRESS_WIDTH - 1] address; // Adrress like address in microblaze memory model
-input [0:31] data;
+    input [0 : PLB_ADDRESS_WIDTH - 1] address; // Adrress like address in microblaze memory model
+    input [0:31] data;
 begin    
     @(posedge iPlbClk)
     iPlbData = data;
