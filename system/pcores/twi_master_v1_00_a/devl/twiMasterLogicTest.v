@@ -29,6 +29,11 @@ twiMasterLogic #(
 );
 
 localparam CLK_PER = 10;
+localparam REG_DATA_WRITE = 32'h0;
+localparam REG_DATA_READ = 32'h1;
+localparam REG_ADDRESS = 32'h2;
+localparam REG_CONTROL = 32'h3;
+localparam REG_DIVIDER = 32'h4;
 `include "plbTestAssets.v"
 
 // TWI slave mock
@@ -36,15 +41,19 @@ reg oSlvSda = 1;
 always @*
     iSda = oSda & oSlvSda;
 
-task twiSingleByteTransaction;
+always 
+begin
+    wait(!oSda && !oSlvSda) 
+        $display("%d# TWI: ERROR! Master and slave drive SDA low", $time);
+    wait(oSda || oSlvSda);
+end
+
+
+task twiCheckStartAndAddress;
     input sendAddrAck;
-    input sendDataAck;
-    input [7:0] data; // Data to read from mock TWI slave
     reg [7:0] address;
-    reg [7:0] writeData;
     integer bitIndex;
 begin
-    $display("%d# TWI: Transaction start", $time);
     oSlvSda = 1;
     wait(oSda && oScl)
     $display("%d# TWI: Idle state detected", $time);
@@ -53,7 +62,7 @@ begin
         if(oScl)
             $display("%d# TWI: Start condition detected", $time);
         else 
-            $display("%d# TWI: Invalid start detected", $time);
+            $display("%d# TWI: ERROR! Invalid start detected", $time);
     
     for(bitIndex = 7; bitIndex >= 0; bitIndex = bitIndex - 1) begin
         @(posedge oScl) 
@@ -66,10 +75,10 @@ begin
         $display("%d# TWI: RW received [write]", $time);
     
     if(sendAddrAck) begin
-        @(negedge oScl)
+        @(posedge oScl)
             #0 oSlvSda = 0;
         @(negedge oScl)
-            oSlvSda = 1;
+            #0 oSlvSda = 1;
         $display("%d# TWI: Address ACK sent", $time);
     end
     else begin
@@ -78,116 +87,199 @@ begin
         @(negedge oScl)
         $display("%d# TWI: Address ACK not sent", $time);
     end
+end
+endtask
 
-    if(address[0]) begin
-        for(bitIndex = 7; bitIndex >= 0; bitIndex = bitIndex - 1) begin
-            #0 oSlvSda = data[bitIndex];
-            @(negedge oScl);
-        end
-        $display("%d# TWI: Data sent [8'h%H]", $time, data);
+task twiSingleByteRead; // Read from slave
+    input [7:0] data;
+    integer bitIndex;
+begin
+    for(bitIndex = 7; bitIndex >= 0; bitIndex = bitIndex - 1) begin
+        #0 oSlvSda = data[bitIndex];
+        @(negedge oScl);
+    end
+    oSlvSda = 1;
+    $display("%d# TWI: Data sent [8'h%H]", $time, data);
 
+    @(posedge oScl)
+        if(oSda)
+            $display("%d# TWI: Master ACK not received", $time);
+        else
+            $display("%d# TWI: Master ACK received", $time);
+    @(negedge oScl);
+end
+endtask
+
+task twiSingleByteWrite; // Write to slave
+    input sendDataAck;    
+    reg [7:0] data;
+    integer bitIndex;
+begin
+    for(bitIndex = 7; bitIndex >= 0; bitIndex = bitIndex - 1) begin
         @(posedge oScl)
-            if(oSda)
-                $display("%d# TWI: Master ACK not received", $time);
-            else
-                $display("%d# TWI: Master ACK received", $time);
+            #0 data[bitIndex] = oSda;
+    end
+    $display("%d# TWI: Data received [8'h%H]", $time, data);
+                    
+    if(sendDataAck) begin
+        @(posedge oScl)
+            #0 oSlvSda = 0;
+        @(negedge oScl)
+            #0 oSlvSda = 1;
+        $display("%d# TWI: Data ACK sent", $time);
     end
     else begin
-        for(bitIndex = 7; bitIndex >= 0; bitIndex = bitIndex - 1) begin
-            @(posedge oScl)
-                #0 writeData[bitIndex] = oSda;
+        oSlvSda = 1;
+        @(negedge oScl)
+        @(negedge oScl)
+        $display("%d# TWI: Data ACK not sent", $time);
         end
-        $display("%d# TWI: Data received [8'h%H]", $time, writeData);
-                        
-        if(sendDataAck) begin
-            @(negedge oScl)
-                #0 oSlvSda = 0;
-            @(negedge oScl)
-                oSlvSda = 1;
-            $display("%d# TWI: Data ACK sent", $time);
-        end
-        else begin
-            oSlvSda = 1;
-            @(negedge oScl)
-            @(negedge oScl)
-            $display("%d# TWI: Data ACK not sent", $time);
-        end
-    end
+end
+endtask
 
+task twiCheckStop;
+begin
     @(posedge oSda) 
         if(oScl)
             $display("%d# TWI: Stop condition detected", $time);             
         else
-            $display("%d# TWI: Invalid stop detected", $time);
+            $display("%d# TWI: ERROR! Invalid stop detected", $time); 
 end
 endtask
 
 // Main procedural block
 reg [7:0] regByte;
 reg [31:0] regWord;
+integer i;
 initial begin
     $display("--- PLB Reset ---");
     plbReset();
 
     plbReadWord(32'h00, regWord);
     $display("%d# REG = %h", $time, regWord);
-    plbReadWord(32'h04, regWord);
+    plbReadWord(REG_DIVIDER, regWord);
     $display("%d# REG_DIVIDER = %h", $time, regWord);
 
     $display("--- PLB Test R/W -- ");
-    plbWriteByte(32'h01, 8'hBE);
-    plbWriteByte(32'h00, 8'hEF);
-    plbReadByte(32'h03, regByte);
-    $display("%d# REG_STATUS = %h", $time, regByte);
-    plbReadByte(32'h02, regByte);
+    plbWriteByte(REG_ADDRESS, 8'hBE);
+    plbWriteByte(REG_DATA_WRITE, 8'hEF);
+    plbReadByte(REG_CONTROL, regByte);
     $display("%d# REG_CONTROL = %h", $time, regByte);
-    plbReadByte(32'h01, regByte);
-    $display("%d# REG_ADRRESS = %h", $time, regByte);
-    plbReadByte(32'h00, regByte);
-    $display("%d# REG_DATA = %h", $time, regByte);
+    plbReadByte(REG_ADDRESS, regByte);
+    $display("%d# REG_ADDRESS = %h", $time, regByte);
+    plbReadByte(REG_DATA_READ, regByte);
+    $display("%d# REG_DATA_R = %h", $time, regByte);
+    plbReadByte(REG_DATA_WRITE, regByte);
+    $display("%d# REG_DATA_W = %h", $time, regByte);
     
-    plbWriteWord(32'h04, 32'h00000005);
-    plbReadWord(32'h04, regWord);
+    plbWriteWord(REG_DIVIDER, 32'h00000005);
+    plbReadWord(REG_DIVIDER, regWord);
     $display("%d# REG_DIVIDER = %h", $time, regWord);
 
     $display("--- TWI test 1 -- ");
     // Write 8'hEF to 8'hBE with both ACK
-    plbWriteByte(32'h01, 8'hBE);
-    plbWriteByte(32'h00, 8'hEF);
+    plbWriteByte(REG_ADDRESS, 8'hBE);
+    plbWriteByte(REG_DATA_WRITE, 8'hEF);
     fork
-        twiSingleByteTransaction(1, 1, 8'hCB);
-        plbWriteByte(32'h02, 8'b0000_0001);
+        begin
+            twiCheckStartAndAddress(1);
+            twiSingleByteWrite(1);
+            twiCheckStop();
+        end
+        plbWriteByte(REG_CONTROL, 8'b1000_0000);
     join
-    plbReadByte(32'h03, regByte);
-    $display("%d# REG_STATUS = %h", $time, regByte);
-    #100
-    plbReadByte(32'h03, regByte);
-    $display("%d# REG_STATUS = %h", $time, regByte);
+    plbReadByte(REG_CONTROL, regByte);
+    $display("%d# REG_CONTROL = %h", $time, regByte);
+    #100;
+    plbReadByte(REG_CONTROL, regByte);
+    $display("%d# REG_CONTROL = %h", $time, regByte);
 
     $display("--- TWI test 2 -- ");    
     // Write 8'h4A to 8'h78 without both ACK
-    plbWriteByte(32'h01, 8'h78);
-    plbWriteByte(32'h00, 8'h4A);
+    plbWriteByte(REG_ADDRESS, 8'h78);
+    plbWriteByte(REG_DATA_WRITE, 8'h4A);
     fork
-        twiSingleByteTransaction(0, 0, 8'hCB);
-        plbWriteByte(32'h02, 8'b0000_0001);
+        begin
+            twiCheckStartAndAddress(0);
+            twiSingleByteWrite(0);
+            twiCheckStop();
+        end
+        plbWriteByte(REG_CONTROL, 8'b1000_0000);
     join
-    #100
-    plbReadByte(32'h03, regByte);
-    $display("%d# REG_STATUS = %h", $time, regByte);
+    #100;
+    plbReadByte(REG_CONTROL, regByte);
+    $display("%d# REG_CONTROL = %h", $time, regByte);
 
     $display("--- TWI test 3 -- ");
     // Read from 8'hC9 with both ACK
-    plbWriteByte(32'h01, 8'hC9);
+    plbWriteByte(REG_ADDRESS, 8'hC9);
     fork
-        twiSingleByteTransaction(1, 1, 8'hE3);
-        plbWriteByte(32'h02, 8'b0000_0011);
+        begin
+            twiCheckStartAndAddress(1);
+            twiSingleByteRead(8'h6E);
+            twiCheckStop();
+        end
+        plbWriteByte(REG_CONTROL, 8'b1000_0000);
     join
-    #100
-    plbReadByte(32'h03, regByte);
-    $display("%d# REG_STATUS = %h", $time, regByte);
-    plbReadByte(32'h00, regByte);
+    #100;
+    plbReadByte(REG_CONTROL, regByte);
+    $display("%d# REG_CONTROL = %h", $time, regByte);
+    plbReadByte(REG_DATA_READ, regByte);
     $display("%d# REG_DATA = %h", $time, regByte);
+
+    
+    $display("--- TWI test 4 -- ");
+    // Read 6 bytes from register 8'A6 in device with address 8'h4E
+    fork
+        begin
+            twiCheckStartAndAddress(1);
+            twiSingleByteWrite(1);
+            twiCheckStartAndAddress(1);
+            twiSingleByteRead(8'hF0);
+            twiSingleByteRead(8'hE1);
+            twiSingleByteRead(8'hD2);
+            twiSingleByteRead(8'hC3);
+            twiSingleByteRead(8'hB4);
+            twiSingleByteRead(8'hA5);
+            twiCheckStop();
+        end
+        begin
+            plbWriteByte(REG_ADDRESS, 8'h4E);
+            plbWriteByte(REG_DATA_WRITE, 8'hA6);
+            plbWriteByte(REG_CONTROL, 8'b1000_0000);
+            
+            plbReadByte(REG_CONTROL, regByte); 
+            while(regByte & 8'b1000_0000) begin // Check start bit clear
+                plbReadByte(REG_CONTROL, regByte);
+            end
+            while(regByte & 8'b0001_0000) begin // Check is ack done
+                plbReadByte(REG_CONTROL, regByte);
+            end
+            $display("%d# REG_CONTROL = %h", $time, regByte);
+
+            plbWriteByte(REG_ADDRESS, 8'h4E|8'h1);
+            for(i = 0; i < 6; i = i + 1) begin
+                plbWriteByte(REG_CONTROL, 8'b1000_0000 | {1'b0, i == 6, 6'b0});
+                plbReadByte(REG_CONTROL, regByte); 
+                while(regByte & 8'b1000_0000) begin // Check start bit clear
+                    plbReadByte(REG_CONTROL, regByte);
+                end
+                while(!(regByte & 8'b0000_0010)) begin // Check is new data received
+                    plbReadByte(REG_CONTROL, regByte);
+                end
+                $display("%d# REG_CONTROL = %h", $time, regByte);
+                
+                plbReadByte(REG_DATA_READ, regByte);
+                $display("%d# REG_DATA = %h", $time, regByte);        
+            end
+        end
+    join
+
+    #100;
+    $finish;
 end
+
+initial
+    #300000 $finish;
 
 endmodule

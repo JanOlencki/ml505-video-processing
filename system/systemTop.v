@@ -3,11 +3,18 @@
 //-----------------------------------------------------------------------------
 
 module systemTop (
-   input i_system_clk,
-   input i_system_rst,
-   inout [0:7] iobuf_system_gpio,
-   inout iobuf_system_twi_0_sda,
-   output obuf_system_twi_0_scl
+    input i_system_clk,
+    input i_system_rst,
+    inout [0:7] iobuf_system_gpio,
+    inout iobuf_system_twi_0_sda,
+    output obuf_system_twi_0_scl,
+    output o_dvi_codec_reset,
+    output [11:0] o_dvi_codec_data,
+    output o_dvi_codec_xclk_p,
+    output o_dvi_codec_xclk_n,
+    output o_dvi_codec_hsync,
+    output o_dvi_codec_vsync,
+    output o_dvi_codec_de
 );
 
 wire [0:7] i_system_gpio;
@@ -54,5 +61,14 @@ OBUFT instBufScl (
     .T(o_system_twi_0_scl)
 );
 
+assign o_dvi_codec_data = 0;
+assign o_dvi_codec_reset = i_system_rst;
+assign o_dvi_codec_xclk_p = i_system_clk;
+assign o_dvi_codec_xclk_n = ~i_system_clk;
+assign o_dvi_codec_hsync = 0;
+assign o_dvi_codec_vsync = 0;
+assign o_dvi_codec_de = 0;
+
 endmodule
+
 

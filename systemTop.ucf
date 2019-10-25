@@ -25,9 +25,83 @@ NET "iobuf_system_gpio[7]" IOSTANDARD = LVCMOS18;
 NET "iobuf_system_twi_0_sda" IOSTANDARD = LVCMOS18;
 NET "obuf_system_twi_0_scl" IOSTANDARD = LVCMOS18;
 
-# PlanAhead Generated IO constraints 
 
 NET "iobuf_system_twi_0_sda" SLEW = FAST;
 NET "obuf_system_twi_0_scl" SLEW = FAST;
 NET "iobuf_system_twi_0_sda" DRIVE = 16;
 NET "obuf_system_twi_0_scl" DRIVE = 16;
+
+
+NET "o_dvi_codec_reset" LOC = AK6;
+
+
+NET "o_dvi_codec_reset" IOSTANDARD = LVCMOS33;
+
+
+NET "o_dvi_codec_data[11]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[10]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[9]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[8]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[7]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[6]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[5]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[4]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[3]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[2]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[1]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[0]" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_data[11]" SLEW = FAST;
+NET "o_dvi_codec_data[10]" SLEW = FAST;
+NET "o_dvi_codec_data[9]" SLEW = FAST;
+NET "o_dvi_codec_data[8]" SLEW = FAST;
+NET "o_dvi_codec_data[7]" SLEW = FAST;
+NET "o_dvi_codec_data[6]" SLEW = FAST;
+NET "o_dvi_codec_data[5]" SLEW = FAST;
+NET "o_dvi_codec_data[4]" SLEW = FAST;
+NET "o_dvi_codec_data[3]" SLEW = FAST;
+NET "o_dvi_codec_data[2]" SLEW = FAST;
+NET "o_dvi_codec_data[1]" SLEW = FAST;
+NET "o_dvi_codec_data[0]" SLEW = FAST;
+
+
+NET "o_dvi_codec_data[11]" LOC = AN14;
+NET "o_dvi_codec_data[10]" LOC = AP14;
+NET "o_dvi_codec_data[9]" LOC = AB10;
+NET "o_dvi_codec_data[8]" LOC = AA10;
+NET "o_dvi_codec_data[7]" LOC = AN13;
+NET "o_dvi_codec_data[6]" LOC = AM13;
+NET "o_dvi_codec_data[5]" LOC = AA8;
+NET "o_dvi_codec_data[4]" LOC = AA9;
+NET "o_dvi_codec_data[3]" LOC = AP12;
+NET "o_dvi_codec_data[2]" LOC = AN12;
+NET "o_dvi_codec_data[1]" LOC = AC8;
+NET "o_dvi_codec_data[0]" LOC = AB8;
+
+
+NET "o_dvi_codec_xclk_p" IOSTANDARD = LVCMOS33;
+
+
+NET "o_dvi_codec_xclk_p" LOC = AL11;
+
+# PlanAhead Generated IO constraints 
+
+NET "o_dvi_codec_xclk_n" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_vsync" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_de" IOSTANDARD = LVCMOS33;
+
+# PlanAhead Generated physical constraints 
+
+NET "o_dvi_codec_xclk_n" LOC = AL10;
+NET "o_dvi_codec_vsync" LOC = AM11;
+NET "o_dvi_codec_hsync" LOC = AM12;
+NET "o_dvi_codec_de" LOC = AE8;
+
+# PlanAhead Generated IO constraints 
+
+NET "o_dvi_codec_de" SLEW = FAST;
+NET "o_dvi_codec_hsync" IOSTANDARD = LVCMOS33;
+NET "o_dvi_codec_hsync" SLEW = FAST;
+NET "o_dvi_codec_reset" SLEW = FAST;
+NET "o_dvi_codec_vsync" SLEW = FAST;
+NET "o_dvi_codec_xclk_n" SLEW = FAST;
+NET "o_dvi_codec_xclk_p" SLEW = FAST;
