@@ -12,7 +12,7 @@ initial begin
 end
 
 always begin
-    #(CLK_PER/2) iPlbClk = ~iPlbClk;
+   #(CLK_PER/2) iPlbClk = ~iPlbClk;
 end
 
 task plbReset;
@@ -31,11 +31,11 @@ task plbReadByte;
 begin    
     byteIndex = address[PLB_ADDRESS_WIDTH - 2 : PLB_ADDRESS_WIDTH - 1];
     @(posedge iPlbClk)
-    iPlbBE = 0;
-    iPlbBE[byteIndex] = 1;
-    iPlbRdCE = 0;
-    iPlbRdCE[address/4] = 1;
-
+    #0 iPlbBE = 0;
+    #0 iPlbBE[byteIndex] = 1;
+    #0 iPlbRdCE = 0;
+    #0 iPlbRdCE[address/4] = 1;
+    #1;
     @(posedge iPlbClk && oPlbRdAck == 1)
     data = oPlbData[8*byteIndex +: 8];
     iPlbRdCE = 0;
@@ -48,10 +48,10 @@ task plbReadWord;
     output [0:31] data;
 begin    
     @(posedge iPlbClk)
-    iPlbBE = 4'hF;
-    iPlbRdCE = 0;
-    iPlbRdCE[address/4] = 1;
-
+    #0 iPlbBE = 4'hF;
+    #0 iPlbRdCE = 0;
+    #0 iPlbRdCE[address/4] = 1;
+    #1;
     @(posedge iPlbClk && oPlbRdAck == 1)
     data = oPlbData;
     iPlbRdCE = 0;
@@ -65,14 +65,13 @@ task plbWriteByte;
     reg [0:1] byteIndex;
 begin    
     byteIndex = address[PLB_ADDRESS_WIDTH - 2 : PLB_ADDRESS_WIDTH - 1];
-    @(posedge iPlbClk)
+    @(negedge iPlbClk)
     iPlbData = 0;
     iPlbData[8*byteIndex +: 8] = data;
     iPlbBE = 0;
     iPlbBE[byteIndex] = 1;
     iPlbWrCE = 0;
     iPlbWrCE[address/4] = 1;
-
     @(posedge iPlbClk && oPlbWrAck == 1)
     iPlbWrCE = 0;
     iPlbBE = 0;
@@ -84,12 +83,11 @@ task plbWriteWord;
     input [0 : PLB_ADDRESS_WIDTH - 1] address; // Adrress like address in microblaze memory model
     input [0:31] data;
 begin    
-    @(posedge iPlbClk)
+    @(negedge iPlbClk)
     iPlbData = data;
     iPlbBE = 4'hF;
     iPlbWrCE = 0;
     iPlbWrCE[address/4] = 1;
-
     @(posedge iPlbClk && oPlbWrAck == 1)
     iPlbWrCE = 0;
     iPlbBE = 0;

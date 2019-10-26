@@ -1,107 +1,107 @@
-NET "i_system_clk" LOC = AH15;
-NET "i_system_rst" LOC = E9;
-NET "iobuf_system_twi_0_sda" LOC = T29;
-NET "obuf_system_twi_0_scl" LOC = U27;
-NET "iobuf_system_gpio[0]" LOC = H18;
-NET "iobuf_system_gpio[1]" LOC = L18;
-NET "iobuf_system_gpio[2]" LOC = G15;
-NET "iobuf_system_gpio[3]" LOC = AD26;
-NET "iobuf_system_gpio[4]" LOC = U25;
-NET "iobuf_system_gpio[5]" LOC = AG27;
-NET "iobuf_system_gpio[6]" LOC = AF25;
-NET "iobuf_system_gpio[7]" LOC = AF26;
+NET "iSysClk" LOC = AH15;
+NET "iSysRst" LOC = E9;
+NET "ioBufSysTwi0Sda" LOC = T29;
+NET "oBufSysTwi0Scl" LOC = U27;
+NET "iobufSysGpio[0]" LOC = H18;
+NET "iobufSysGpio[1]" LOC = L18;
+NET "iobufSysGpio[2]" LOC = G15;
+NET "iobufSysGpio[3]" LOC = AD26;
+NET "iobufSysGpio[4]" LOC = U25;
+NET "iobufSysGpio[5]" LOC = AG27;
+NET "iobufSysGpio[6]" LOC = AF25;
+NET "iobufSysGpio[7]" LOC = AF26;
 
 
-NET "i_system_clk" IOSTANDARD = LVCMOS33;
-NET "i_system_rst" IOSTANDARD = LVDCI_33;
-NET "iobuf_system_gpio[0]" IOSTANDARD = LVCMOS25;
-NET "iobuf_system_gpio[1]" IOSTANDARD = LVCMOS25;
-NET "iobuf_system_gpio[2]" IOSTANDARD = LVCMOS25;
-NET "iobuf_system_gpio[3]" IOSTANDARD = LVCMOS18;
-NET "iobuf_system_gpio[4]" IOSTANDARD = LVCMOS18;
-NET "iobuf_system_gpio[5]" IOSTANDARD = LVCMOS18;
-NET "iobuf_system_gpio[6]" IOSTANDARD = LVCMOS18;
-NET "iobuf_system_gpio[7]" IOSTANDARD = LVCMOS18;
-NET "iobuf_system_twi_0_sda" IOSTANDARD = LVCMOS18;
-NET "obuf_system_twi_0_scl" IOSTANDARD = LVCMOS18;
+NET "iSysClk" IOSTANDARD = LVCMOS33;
+NET "iSysRst" IOSTANDARD = LVDCI_33;
+NET "iobufSysGpio[0]" IOSTANDARD = LVCMOS25;
+NET "iobufSysGpio[1]" IOSTANDARD = LVCMOS25;
+NET "iobufSysGpio[2]" IOSTANDARD = LVCMOS25;
+NET "iobufSysGpio[3]" IOSTANDARD = LVCMOS18;
+NET "iobufSysGpio[4]" IOSTANDARD = LVCMOS18;
+NET "iobufSysGpio[5]" IOSTANDARD = LVCMOS18;
+NET "iobufSysGpio[6]" IOSTANDARD = LVCMOS18;
+NET "iobufSysGpio[7]" IOSTANDARD = LVCMOS18;
+NET "ioBufSysTwi0Sda" IOSTANDARD = LVCMOS18;
+NET "oBufSysTwi0Scl" IOSTANDARD = LVCMOS18;
 
 
-NET "iobuf_system_twi_0_sda" SLEW = FAST;
-NET "obuf_system_twi_0_scl" SLEW = FAST;
-NET "iobuf_system_twi_0_sda" DRIVE = 16;
-NET "obuf_system_twi_0_scl" DRIVE = 16;
+NET "ioBufSysTwi0Sda" SLEW = FAST;
+NET "oBufSysTwi0Scl" SLEW = FAST;
+NET "ioBufSysTwi0Sda" DRIVE = 16;
+NET "oBufSysTwi0Scl" DRIVE = 16;
 
 
-NET "o_dvi_codec_reset" LOC = AK6;
+NET "oDviRst" LOC = AK6;
 
 
-NET "o_dvi_codec_reset" IOSTANDARD = LVCMOS33;
+NET "oDviRst" IOSTANDARD = LVCMOS33;
 
 
-NET "o_dvi_codec_data[11]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[10]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[9]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[8]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[7]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[6]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[5]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[4]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[3]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[2]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[1]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[0]" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_data[11]" SLEW = FAST;
-NET "o_dvi_codec_data[10]" SLEW = FAST;
-NET "o_dvi_codec_data[9]" SLEW = FAST;
-NET "o_dvi_codec_data[8]" SLEW = FAST;
-NET "o_dvi_codec_data[7]" SLEW = FAST;
-NET "o_dvi_codec_data[6]" SLEW = FAST;
-NET "o_dvi_codec_data[5]" SLEW = FAST;
-NET "o_dvi_codec_data[4]" SLEW = FAST;
-NET "o_dvi_codec_data[3]" SLEW = FAST;
-NET "o_dvi_codec_data[2]" SLEW = FAST;
-NET "o_dvi_codec_data[1]" SLEW = FAST;
-NET "o_dvi_codec_data[0]" SLEW = FAST;
+NET "oDviData[11]" IOSTANDARD = LVCMOS33;
+NET "oDviData[10]" IOSTANDARD = LVCMOS33;
+NET "oDviData[9]" IOSTANDARD = LVCMOS33;
+NET "oDviData[8]" IOSTANDARD = LVCMOS33;
+NET "oDviData[7]" IOSTANDARD = LVCMOS33;
+NET "oDviData[6]" IOSTANDARD = LVCMOS33;
+NET "oDviData[5]" IOSTANDARD = LVCMOS33;
+NET "oDviData[4]" IOSTANDARD = LVCMOS33;
+NET "oDviData[3]" IOSTANDARD = LVCMOS33;
+NET "oDviData[2]" IOSTANDARD = LVCMOS33;
+NET "oDviData[1]" IOSTANDARD = LVCMOS33;
+NET "oDviData[0]" IOSTANDARD = LVCMOS33;
+NET "oDviData[11]" SLEW = FAST;
+NET "oDviData[10]" SLEW = FAST;
+NET "oDviData[9]" SLEW = FAST;
+NET "oDviData[8]" SLEW = FAST;
+NET "oDviData[7]" SLEW = FAST;
+NET "oDviData[6]" SLEW = FAST;
+NET "oDviData[5]" SLEW = FAST;
+NET "oDviData[4]" SLEW = FAST;
+NET "oDviData[3]" SLEW = FAST;
+NET "oDviData[2]" SLEW = FAST;
+NET "oDviData[1]" SLEW = FAST;
+NET "oDviData[0]" SLEW = FAST;
 
 
-NET "o_dvi_codec_data[11]" LOC = AN14;
-NET "o_dvi_codec_data[10]" LOC = AP14;
-NET "o_dvi_codec_data[9]" LOC = AB10;
-NET "o_dvi_codec_data[8]" LOC = AA10;
-NET "o_dvi_codec_data[7]" LOC = AN13;
-NET "o_dvi_codec_data[6]" LOC = AM13;
-NET "o_dvi_codec_data[5]" LOC = AA8;
-NET "o_dvi_codec_data[4]" LOC = AA9;
-NET "o_dvi_codec_data[3]" LOC = AP12;
-NET "o_dvi_codec_data[2]" LOC = AN12;
-NET "o_dvi_codec_data[1]" LOC = AC8;
-NET "o_dvi_codec_data[0]" LOC = AB8;
+NET "oDviData[11]" LOC = AN14;
+NET "oDviData[10]" LOC = AP14;
+NET "oDviData[9]" LOC = AB10;
+NET "oDviData[8]" LOC = AA10;
+NET "oDviData[7]" LOC = AN13;
+NET "oDviData[6]" LOC = AM13;
+NET "oDviData[5]" LOC = AA8;
+NET "oDviData[4]" LOC = AA9;
+NET "oDviData[3]" LOC = AP12;
+NET "oDviData[2]" LOC = AN12;
+NET "oDviData[1]" LOC = AC8;
+NET "oDviData[0]" LOC = AB8;
 
 
-NET "o_dvi_codec_xclk_p" IOSTANDARD = LVCMOS33;
+NET "oDviClk_p" IOSTANDARD = LVCMOS33;
 
 
-NET "o_dvi_codec_xclk_p" LOC = AL11;
+NET "oDviClk_p" LOC = AL11;
 
 # PlanAhead Generated IO constraints 
 
-NET "o_dvi_codec_xclk_n" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_vsync" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_de" IOSTANDARD = LVCMOS33;
+NET "oDviClk_n" IOSTANDARD = LVCMOS33;
+NET "oDviVsync" IOSTANDARD = LVCMOS33;
+NET "oDviDe" IOSTANDARD = LVCMOS33;
 
 # PlanAhead Generated physical constraints 
 
-NET "o_dvi_codec_xclk_n" LOC = AL10;
-NET "o_dvi_codec_vsync" LOC = AM11;
-NET "o_dvi_codec_hsync" LOC = AM12;
-NET "o_dvi_codec_de" LOC = AE8;
+NET "oDviClk_n" LOC = AL10;
+NET "oDviVsync" LOC = AM11;
+NET "oDviHsync" LOC = AM12;
+NET "oDviDe" LOC = AE8;
 
 # PlanAhead Generated IO constraints 
 
-NET "o_dvi_codec_de" SLEW = FAST;
-NET "o_dvi_codec_hsync" IOSTANDARD = LVCMOS33;
-NET "o_dvi_codec_hsync" SLEW = FAST;
-NET "o_dvi_codec_reset" SLEW = FAST;
-NET "o_dvi_codec_vsync" SLEW = FAST;
-NET "o_dvi_codec_xclk_n" SLEW = FAST;
-NET "o_dvi_codec_xclk_p" SLEW = FAST;
+NET "oDviDe" SLEW = FAST;
+NET "oDviHsync" IOSTANDARD = LVCMOS33;
+NET "oDviHsync" SLEW = FAST;
+NET "oDviRst" SLEW = FAST;
+NET "oDviVsync" SLEW = FAST;
+NET "oDviClk_n" SLEW = FAST;
+NET "oDviClk_p" SLEW = FAST;

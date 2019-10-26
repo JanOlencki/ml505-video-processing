@@ -154,7 +154,6 @@ integer i;
 initial begin
     $display("--- PLB Reset ---");
     plbReset();
-
     plbReadWord(32'h00, regWord);
     $display("%d# REG = %h", $time, regWord);
     plbReadWord(REG_DIVIDER, regWord);
@@ -233,6 +232,55 @@ initial begin
     fork
         begin
             twiCheckStartAndAddress(1);
+            twiSingleByteWrite(0);
+            twiCheckStartAndAddress(1);
+            twiSingleByteRead(8'hF0);
+            twiSingleByteRead(8'hE1);
+            twiSingleByteRead(8'hD2);
+            twiSingleByteRead(8'hC3);
+            twiSingleByteRead(8'hB4);
+            twiSingleByteRead(8'hA5);
+            twiCheckStop();
+        end
+        begin
+            plbWriteByte(REG_ADDRESS, 8'h4E);
+            plbWriteByte(REG_DATA_WRITE, 8'hA6);
+            plbWriteByte(REG_CONTROL, 8'b1000_0000);
+            
+            plbReadByte(REG_CONTROL, regByte); 
+            while(regByte & 8'b1000_0000) begin // Check start bit clear
+                plbReadByte(REG_CONTROL, regByte);
+            end
+            while(regByte & 8'b0001_0000) begin // Check is ack done
+                plbReadByte(REG_CONTROL, regByte);
+            end
+            $display("%d# REG_CONTROL = %h", $time, regByte);
+
+            plbWriteByte(REG_ADDRESS, 8'h4E|8'h1);
+            for(i = 0; i < 6; i = i + 1) begin
+                plbWriteByte(REG_CONTROL, 8'b1000_0000 | {1'b0, i == 6, 6'b0});
+                plbReadByte(REG_CONTROL, regByte); 
+                while(regByte & 8'b1000_0000) begin // Check start bit clear
+                    plbReadByte(REG_CONTROL, regByte);
+                end
+                while(!(regByte & 8'b0000_0010)) begin // Check is new data received
+                    plbReadByte(REG_CONTROL, regByte);
+                end
+                $display("%d# REG_CONTROL = %h", $time, regByte);
+                
+                plbReadByte(REG_DATA_READ, regByte);
+                $display("%d# REG_DATA = %h", $time, regByte);        
+            end
+        end
+    join
+
+    #100;
+
+    $display("--- TWI test 5 -- ");
+    // Read 6 bytes from register 8'A6 in device with address 8'h4E
+    fork
+        begin
+            twiCheckStartAndAddress(1);
             twiSingleByteWrite(1);
             twiCheckStartAndAddress(1);
             twiSingleByteRead(8'hF0);
@@ -276,6 +324,7 @@ initial begin
     join
 
     #100;
+
     $finish;
 end
 

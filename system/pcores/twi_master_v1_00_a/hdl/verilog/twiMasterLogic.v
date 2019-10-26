@@ -13,8 +13,8 @@ module twiMasterLogic #(
     input [0 : PLB_REG_COUNT - 1] iPlbRdCE,
     input [0 : PLB_REG_COUNT - 1] iPlbWrCE,
     output reg [0 : PLB_DATA_WIDTH - 1] oPlbData,
-    output reg oPlbRdAck,
-    output reg oPlbWrAck,
+    output oPlbRdAck,
+    output oPlbWrAck,
     output oPlbError
 );
 
@@ -256,6 +256,8 @@ always @* begin
     end
 end
 
+assign oPlbWrAck = |iPlbWrCE;
+assign oPlbRdAck = |iPlbRdCE;
 always @(posedge iPlbClk) begin
     if(iPlbReset == 1) begin
         regStartCall <= 0;
@@ -263,7 +265,6 @@ always @(posedge iPlbClk) begin
         regDivider <= 0;
     end
     else begin
-        oPlbWrAck <= 0;
         if(iPlbWrCE == 2'b10) begin
             if(iPlbBE[0])
                 regDataWrite <= iPlbData[0:7];
@@ -274,7 +275,6 @@ always @(posedge iPlbClk) begin
                     regStartCall <= 1;
                 regSendMasterAck <= iPlbData[25];
             end
-            oPlbWrAck <= 1;
         end
         else if(iPlbWrCE == 2'b01) begin
             if(iPlbBE[0])
@@ -285,7 +285,6 @@ always @(posedge iPlbClk) begin
                 regDivider[15:8] <= iPlbData[16:23];
             if(iPlbBE[3])
                 regDivider[7:0] <= iPlbData[24:31];
-            oPlbWrAck <= 1;
         end
         if(clearStartReg)
             regStartCall <= 0;
@@ -293,8 +292,6 @@ always @(posedge iPlbClk) begin
 end
 
 always @(posedge iPlbClk) begin 
-    oPlbData <= 0;
-    oPlbRdAck <= 0;
     if(iPlbReset == 1) begin
         regNewDataReceived <= 0;
     end 
@@ -303,20 +300,21 @@ always @(posedge iPlbClk) begin
             regNewDataReceived <= 1;
         else if(iPlbRdCE == 2'b10 && iPlbBE[1])
             regNewDataReceived <= 0;
-
-        if(iPlbRdCE == 2'b10) begin
-            oPlbData[0:7] <= regDataWrite;
-            oPlbData[8:15] <= regDataRead;
-            oPlbData[16:23] <= regAddress;
-            oPlbData[24:25] <= {regStartCall, regSendMasterAck};
-            oPlbData[26:31] <= {1'b0, ackNotDone, dataAckError, addrAckError, regNewDataReceived, bussy};
-            oPlbRdAck <= 1;
-        end
-        else if(iPlbRdCE == 2'b01) begin
-            oPlbData <= {27'b0, 5'b11011};
-            oPlbRdAck <= 1;
-        end
     end
+end
+always @* begin
+    if(iPlbRdCE == 2'b10) begin
+        oPlbData[0:7] <= regDataWrite;
+        oPlbData[8:15] <= regDataRead;
+        oPlbData[16:23] <= regAddress;
+        oPlbData[24:25] <= {regStartCall, regSendMasterAck};
+        oPlbData[26:31] <= {1'b0, ackNotDone, dataAckError, addrAckError, regNewDataReceived, bussy};
+    end
+    else if(iPlbRdCE == 2'b01) begin
+        oPlbData <= {27'b0, 5'b11011};
+    end
+    else 
+        oPlbData <= 0;
 end
 
 assign oPlbError = 0;
