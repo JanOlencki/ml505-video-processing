@@ -16,7 +16,7 @@
 
 
  PORT i_system_clk = CLK_S, DIR = I, SIGIS = CLK, CLK_FREQ = 100000000
- PORT i_system_rst = sys_rst_s, DIR = I, SIGIS = RST, RST_POLARITY = 0
+ PORT i_system_rst = sys_rst_s, DIR = I, SIGIS = RST, RST_POLARITY = 1
  PORT i_system_gpio = xps_gpio_0_GPIO_i, DIR = I, VEC = [0:7]
  PORT o_system_gpio = xps_gpio_0_GPIO_o, DIR = O, VEC = [0:7]
  PORT t_system_gpio = xps_gpio_0_GPIO_t, DIR = O, VEC = [0:7]
@@ -91,7 +91,7 @@ BEGIN clock_generator
  PARAMETER C_CLKOUT0_PHASE = 0
  PARAMETER C_CLKOUT0_GROUP = NONE
  PARAMETER C_CLKOUT0_BUF = TRUE
- PARAMETER C_EXT_RESET_HIGH = 0
+ PARAMETER C_EXT_RESET_HIGH = 1
  PARAMETER HW_VER = 4.03.a
  PORT CLKIN = CLK_S
  PORT CLKOUT0 = clk_100_0000MHz
@@ -114,7 +114,7 @@ END
 
 BEGIN proc_sys_reset
  PARAMETER INSTANCE = proc_sys_reset_0
- PARAMETER C_EXT_RESET_HIGH = 0
+ PARAMETER C_EXT_RESET_HIGH = 1
  PARAMETER HW_VER = 3.00.a
  PORT Slowest_sync_clk = clk_100_0000MHz
  PORT Ext_Reset_In = sys_rst_s

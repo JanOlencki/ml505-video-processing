@@ -1,5 +1,8 @@
-NET "iSysClk" LOC = AH15;
-NET "iSysRst" LOC = E9;
+NET "iTopClk" LOC = AH15;
+NET "iTopRst_neg" LOC = E9; 
+NET "iTopRst_neg" IOSTANDARD = LVCMOS33;
+NET "iTopClk" IOSTANDARD = LVCMOS33;
+
 NET "ioBufSysTwi0Sda" LOC = T29;
 NET "oBufSysTwi0Scl" LOC = U27;
 NET "iobufSysGpio[0]" LOC = H18;
@@ -11,9 +14,6 @@ NET "iobufSysGpio[5]" LOC = AG27;
 NET "iobufSysGpio[6]" LOC = AF25;
 NET "iobufSysGpio[7]" LOC = AF26;
 
-
-NET "iSysClk" IOSTANDARD = LVCMOS33;
-NET "iSysRst" IOSTANDARD = LVDCI_33;
 NET "iobufSysGpio[0]" IOSTANDARD = LVCMOS25;
 NET "iobufSysGpio[1]" IOSTANDARD = LVCMOS25;
 NET "iobufSysGpio[2]" IOSTANDARD = LVCMOS25;
@@ -83,20 +83,17 @@ NET "oDviClk_p" IOSTANDARD = LVCMOS33;
 
 NET "oDviClk_p" LOC = AL11;
 
-# PlanAhead Generated IO constraints 
 
 NET "oDviClk_n" IOSTANDARD = LVCMOS33;
 NET "oDviVsync" IOSTANDARD = LVCMOS33;
 NET "oDviDe" IOSTANDARD = LVCMOS33;
 
-# PlanAhead Generated physical constraints 
 
 NET "oDviClk_n" LOC = AL10;
 NET "oDviVsync" LOC = AM11;
 NET "oDviHsync" LOC = AM12;
 NET "oDviDe" LOC = AE8;
 
-# PlanAhead Generated IO constraints 
 
 NET "oDviDe" SLEW = FAST;
 NET "oDviHsync" IOSTANDARD = LVCMOS33;
@@ -105,3 +102,4 @@ NET "oDviRst" SLEW = FAST;
 NET "oDviVsync" SLEW = FAST;
 NET "oDviClk_n" SLEW = FAST;
 NET "oDviClk_p" SLEW = FAST;
+
