@@ -1,84 +1,87 @@
 module systemTop (
     input iTopClk,
     input iTopRst_neg,
-    inout [0:7] iobufSysGpio,
-    inout ioBufSysTwi0Sda,
-    output oBufSysTwi0Scl,
-    output oDviRst,
-    output [11:0] oDviData,
+    output [7:0] oLedGreen,
+    input [7:0] iDipSwitch,
+    inout ioBufTwiVideoSda,
+    output oBufTwiVideoScl,
+    input iVgaClk,
+    input iVgaHsync,
+    input iVgaVsync,
+    input [7:0] iVgaDataRed,
+    input [7:0] iVgaDataGreen,
+    input [7:0] iVgaDataBlue,
     output oDviClk_p,
     output oDviClk_n,
+    output oDviRst,
+    output oDviDe,
     output oDviHsync,
     output oDviVsync,
-    output oDviDe
+    output [11:0] oDviData
 );
 
 wire iTopRst = ~iTopRst_neg;
-wire topClkPllLocked;
 
 wire sysClk;
 wire sysRst;
-wire [0:7] iSysGpio;
-wire [0:7] oSysGpio;
-wire [0:7] tSysGpio;
-wire iSysTwi0Sda;
-wire oSysTwi0Sda;
-wire oSysTwi0Scl;
+wire iSysTwiVideoSda;
+wire oSysTwiVideoSda;
+wire oSysTwiVideoScl;
+wire [31:0] sysVideoStatus;
+wire [31:0] sysVideoControl;
 
-wire videoRst;
 wire videoClk_0;
 wire videoClk_90;
-wire videoClk_180;
+wire videoClk2x_0;
+wire videoClk2x_90;
+wire videoClk2x_180;
+wire videoClkLocked;
+wire videoRst;
+wire dviRst;
 
-topClkPll topClkPllInst (
-    .CLKIN_IN(iTopClk), 
-    .RST_IN(iTopRst), 
-    .CLKIN_IBUFG_OUT(sysClk), 
-    .CLKOUT0_OUT(videoClk_0), 
-    .CLKOUT1_OUT(videoClk_90), 
-    .CLKOUT2_OUT(videoClk_180), 
-    .LOCKED_OUT(topClkPllLocked)
-);
-
+assign sysClk = iTopClk;
 assign sysRst = iTopRst;
 (* BOX_TYPE = "user_black_box" *) system systemInst (
     .i_system_clk(sysClk),
     .i_system_rst(sysRst),
-    .i_system_gpio(iSysGpio),
-    .o_system_gpio(oSysGpio),
-    .t_system_gpio(tSysGpio),
-    .i_system_twi_0_sda(iSysTwi0Sda),
-    .o_system_twi_0_sda(oSysTwi0Sda),
-    .o_system_twi_0_scl(oSysTwi0Scl)
+    .i_system_gpio(iDipSwitch[3:0]),
+    .o_system_gpio(oLedGreen[3:0]),
+    .i_system_twi_video_sda(iSysTwiVideoSda),
+    .o_system_twi_video_sda(oSysTwiVideoSda),
+    .o_system_twi_video_scl(oSysTwiVideoScl),
+    .i_system_gpio_video(sysVideoStatus),
+    .o_system_gpio_video(sysVideoControl)
 );
-
-genvar i;
-generate
-    for(i = 0; i < 8; i = i+1) begin : instantiationBufGpio
-        IOBUF instBufGpio (
-            .O(iSysGpio[i]),
-            .IO(iobufSysGpio[i]),
-            .I(oSysGpio[i]),
-            .T(tSysGpio[i])
-        );
-    end
-endgenerate
 IOBUF instBufSda (
-    .O(iSysTwi0Sda),
-    .IO(ioBufSysTwi0Sda),
-    .I(oSysTwi0Sda),
-    .T(oSysTwi0Sda)
+    .O(iSysTwiVideoSda),
+    .IO(ioBufTwiVideoSda),
+    .I(oSysTwiVideoSda),
+    .T(oSysTwiVideoSda)
 );
 OBUFT instBufScl (
-    .O(oBufSysTwi0Scl),
-    .I(oSysTwi0Scl),
-    .T(oSysTwi0Scl)
+    .O(oBufTwiVideoScl),
+    .I(oSysTwiVideoScl),
+    .T(oSysTwiVideoScl)
 );
 
-assign videoRst = iTopRst | ~topClkPllLocked;
+videoClkPll instance_name (
+    .CLKIN1_IN(iVgaClk), 
+    .RST_IN(videoRst), 
+    .CLKOUT0_OUT(videoClk_0), 
+    .CLKOUT1_OUT(videoClk_90), 
+    .CLKOUT2_OUT(videoClk2x_0), 
+    .CLKOUT3_OUT(videoClk2x_90), 
+    .CLKOUT4_OUT(videoClk2x_180), 
+    .LOCKED_OUT(videoClkLocked)
+);
+
+assign videoRst = iTopRst | sysVideoControl[0];
+assign dviRst = videoRst | ~videoClkLocked | sysVideoControl[1];
 assign oDviRst = ~videoRst;
-assign oDviClk_p = videoClk_0;
-assign oDviClk_n = videoClk_180;
+assign oDviClk_p = videoClk2x_0;
+assign oDviClk_n = videoClk2x_180;
+assign sysVideoStatus = {28'b0, videoClkLocked, dviRst, videoRst};
+assign oLedGreen[7:4] = {3'b0, videoClkLocked};
 
 dviOutStreamer #(
     .H_ACTIVE_COUNT(800),
@@ -90,9 +93,9 @@ dviOutStreamer #(
     .V_SYNC(4),
     .V_BACK_PORCH(23)
 ) dviOutStreamerInst (
-    .iClk_0(videoClk_0),
-    .iClk_90(videoClk_90),
-    .iRst(videoRst),
+    .iClk_0(videoClk2x_0),
+    .iClk_90(videoClk2x_90),
+    .iRst(dviRst),
     .oData(oDviData),
     .oHsync(oDviHsync),
     .oVsync(oDviVsync),

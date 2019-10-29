@@ -17,12 +17,13 @@
 
  PORT i_system_clk = CLK_S, DIR = I, SIGIS = CLK, CLK_FREQ = 100000000
  PORT i_system_rst = sys_rst_s, DIR = I, SIGIS = RST, RST_POLARITY = 1
- PORT i_system_gpio = xps_gpio_0_GPIO_i, DIR = I, VEC = [0:7]
- PORT o_system_gpio = xps_gpio_0_GPIO_o, DIR = O, VEC = [0:7]
- PORT t_system_gpio = xps_gpio_0_GPIO_t, DIR = O, VEC = [0:7]
- PORT i_system_twi_0_sda = twi_master_0_i_sda, DIR = I
- PORT o_system_twi_0_sda = twi_master_0_o_sda, DIR = O
- PORT o_system_twi_0_scl = twi_master_0_o_scl, DIR = O
+ PORT i_system_gpio = xps_gpio_0_GPIO_i, DIR = I, VEC = [0:3]
+ PORT i_system_gpio_video = net_i_system_gpio_video, DIR = I, VEC = [0:31]
+ PORT o_system_gpio_video = xps_gpio_1_GPIO2_IO_O, DIR = O, VEC = [0:31]
+ PORT i_system_twi_video_sda = net_i_system_twi_video_sda, DIR = I
+ PORT o_system_twi_video_sda = twi_master_0_o_sda, DIR = O
+ PORT o_system_twi_video_scl = twi_master_0_o_scl, DIR = O
+ PORT o_system_gpio = xps_gpio_0_GPIO2_IO_O, DIR = O, VEC = [0:3]
 
 
 BEGIN microblaze
@@ -128,23 +129,39 @@ END
 BEGIN xps_gpio
  PARAMETER INSTANCE = xps_gpio_0
  PARAMETER HW_VER = 2.00.a
- PARAMETER C_GPIO_WIDTH = 8
- PARAMETER C_BASEADDR = 0x81400000
- PARAMETER C_HIGHADDR = 0x8140ffff
+ PARAMETER C_GPIO_WIDTH = 4
+ PARAMETER C_BASEADDR = 0x81420000
+ PARAMETER C_HIGHADDR = 0x8142ffff
+ PARAMETER C_IS_DUAL = 1
+ PARAMETER C_ALL_INPUTS = 1
+ PARAMETER C_GPIO2_WIDTH = 4
  BUS_INTERFACE SPLB = mb_plb
  PORT GPIO_IO_I = xps_gpio_0_GPIO_i
  PORT GPIO_IO_O = xps_gpio_0_GPIO_o
  PORT GPIO_IO_T = xps_gpio_0_GPIO_t
+ PORT GPIO2_IO_O = xps_gpio_0_GPIO2_IO_O
 END
 
 BEGIN twi_master
- PARAMETER INSTANCE = twi_master_0
+ PARAMETER INSTANCE = twi_master_video
  PARAMETER HW_VER = 1.00.a
- PARAMETER C_BASEADDR = 0xc9a00000
- PARAMETER C_HIGHADDR = 0xc9a0ffff
+ PARAMETER C_BASEADDR = 0xc5e00000
+ PARAMETER C_HIGHADDR = 0xc5e0ffff
  BUS_INTERFACE SPLB = mb_plb
- PORT i_sda = twi_master_0_i_sda
+ PORT i_sda = net_i_system_twi_video_sda
  PORT o_sda = twi_master_0_o_sda
  PORT o_scl = twi_master_0_o_scl
+END
+
+BEGIN xps_gpio
+ PARAMETER INSTANCE = xps_gpio_video
+ PARAMETER HW_VER = 2.00.a
+ PARAMETER C_ALL_INPUTS = 1
+ PARAMETER C_IS_DUAL = 1
+ PARAMETER C_BASEADDR = 0x81400000
+ PARAMETER C_HIGHADDR = 0x8140ffff
+ BUS_INTERFACE SPLB = mb_plb
+ PORT GPIO_IO_I = net_i_system_gpio_video
+ PORT GPIO2_IO_O = xps_gpio_1_GPIO2_IO_O
 END
 

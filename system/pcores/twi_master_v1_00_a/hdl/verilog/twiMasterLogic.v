@@ -311,7 +311,7 @@ always @* begin
         oPlbData[26:31] <= {1'b0, ackNotDone, dataAckError, addrAckError, regNewDataReceived, bussy};
     end
     else if(iPlbRdCE == 2'b01) begin
-        oPlbData <= {27'b0, 5'b11011};
+        oPlbData <= {regDivider};
     end
     else 
         oPlbData <= 0;
