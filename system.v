@@ -11,20 +11,22 @@ module system
     i_system_clk,
     i_system_rst,
     i_system_gpio,
-    o_system_gpio,
-    t_system_gpio,
-    i_system_twi_0_sda,
-    o_system_twi_0_sda,
-    o_system_twi_0_scl
+    i_system_gpio_video,
+    o_system_gpio_video,
+    i_system_twi_video_sda,
+    o_system_twi_video_sda,
+    o_system_twi_video_scl,
+    o_system_gpio
   );
   input i_system_clk;
   input i_system_rst;
-  input [0:7] i_system_gpio;
-  output [0:7] o_system_gpio;
-  output [0:7] t_system_gpio;
-  input i_system_twi_0_sda;
-  output o_system_twi_0_sda;
-  output o_system_twi_0_scl;
+  input [0:3] i_system_gpio;
+  input [0:31] i_system_gpio_video;
+  output [0:31] o_system_gpio_video;
+  input i_system_twi_video_sda;
+  output o_system_twi_video_sda;
+  output o_system_twi_video_scl;
+  output [0:3] o_system_gpio;
 
   // Internal signals
 
@@ -136,7 +138,7 @@ module system
   wire mb_plb_PLB_rdBurst;
   wire [0:1] mb_plb_PLB_rdPendPri;
   wire mb_plb_PLB_rdPendReq;
-  wire [0:2] mb_plb_PLB_rdPrim;
+  wire [0:3] mb_plb_PLB_rdPrim;
   wire [0:1] mb_plb_PLB_reqPri;
   wire [0:3] mb_plb_PLB_size;
   wire [0:2] mb_plb_PLB_type;
@@ -144,24 +146,24 @@ module system
   wire [0:31] mb_plb_PLB_wrDBus;
   wire [0:1] mb_plb_PLB_wrPendPri;
   wire mb_plb_PLB_wrPendReq;
-  wire [0:2] mb_plb_PLB_wrPrim;
-  wire [0:2] mb_plb_SPLB_Rst;
-  wire [0:5] mb_plb_Sl_MBusy;
-  wire [0:5] mb_plb_Sl_MIRQ;
-  wire [0:5] mb_plb_Sl_MRdErr;
-  wire [0:5] mb_plb_Sl_MWrErr;
-  wire [0:5] mb_plb_Sl_SSize;
-  wire [0:2] mb_plb_Sl_addrAck;
-  wire [0:2] mb_plb_Sl_rdBTerm;
-  wire [0:2] mb_plb_Sl_rdComp;
-  wire [0:2] mb_plb_Sl_rdDAck;
-  wire [0:95] mb_plb_Sl_rdDBus;
-  wire [0:11] mb_plb_Sl_rdWdAddr;
-  wire [0:2] mb_plb_Sl_rearbitrate;
-  wire [0:2] mb_plb_Sl_wait;
-  wire [0:2] mb_plb_Sl_wrBTerm;
-  wire [0:2] mb_plb_Sl_wrComp;
-  wire [0:2] mb_plb_Sl_wrDAck;
+  wire [0:3] mb_plb_PLB_wrPrim;
+  wire [0:3] mb_plb_SPLB_Rst;
+  wire [0:7] mb_plb_Sl_MBusy;
+  wire [0:7] mb_plb_Sl_MIRQ;
+  wire [0:7] mb_plb_Sl_MRdErr;
+  wire [0:7] mb_plb_Sl_MWrErr;
+  wire [0:7] mb_plb_Sl_SSize;
+  wire [0:3] mb_plb_Sl_addrAck;
+  wire [0:3] mb_plb_Sl_rdBTerm;
+  wire [0:3] mb_plb_Sl_rdComp;
+  wire [0:3] mb_plb_Sl_rdDAck;
+  wire [0:127] mb_plb_Sl_rdDBus;
+  wire [0:15] mb_plb_Sl_rdWdAddr;
+  wire [0:3] mb_plb_Sl_rearbitrate;
+  wire [0:3] mb_plb_Sl_wait;
+  wire [0:3] mb_plb_Sl_wrBTerm;
+  wire [0:3] mb_plb_Sl_wrComp;
+  wire [0:3] mb_plb_Sl_wrDAck;
   wire mb_reset;
   wire microblaze_0_mdm_bus_Dbg_Capture;
   wire microblaze_0_mdm_bus_Dbg_Clk;
@@ -180,26 +182,28 @@ module system
   wire [0:15] net_gnd16;
   wire [0:31] net_gnd32;
   wire [0:4095] net_gnd4096;
+  wire [0:31] net_i_system_gpio_video;
+  wire net_i_system_twi_video_sda;
   wire net_vcc0;
   wire [0:0] sys_bus_reset;
   wire sys_rst_s;
-  wire twi_master_0_i_sda;
   wire twi_master_0_o_scl;
   wire twi_master_0_o_sda;
-  wire [0:7] xps_gpio_0_GPIO_i;
-  wire [0:7] xps_gpio_0_GPIO_o;
-  wire [0:7] xps_gpio_0_GPIO_t;
+  wire [0:3] xps_gpio_0_GPIO2_IO_O;
+  wire [0:3] xps_gpio_0_GPIO_i;
+  wire [0:31] xps_gpio_1_GPIO2_IO_O;
 
   // Internal assignments
 
   assign CLK_S = i_system_clk;
   assign sys_rst_s = i_system_rst;
   assign xps_gpio_0_GPIO_i = i_system_gpio;
-  assign o_system_gpio = xps_gpio_0_GPIO_o;
-  assign t_system_gpio = xps_gpio_0_GPIO_t;
-  assign twi_master_0_i_sda = i_system_twi_0_sda;
-  assign o_system_twi_0_sda = twi_master_0_o_sda;
-  assign o_system_twi_0_scl = twi_master_0_o_scl;
+  assign net_i_system_gpio_video = i_system_gpio_video;
+  assign o_system_gpio_video = xps_gpio_1_GPIO2_IO_O;
+  assign net_i_system_twi_video_sda = i_system_twi_video_sda;
+  assign o_system_twi_video_sda = twi_master_0_o_sda;
+  assign o_system_twi_video_scl = twi_master_0_o_scl;
+  assign o_system_gpio = xps_gpio_0_GPIO2_IO_O;
   assign net_gnd0 = 1'b0;
   assign net_gnd1[0:0] = 1'b0;
   assign net_gnd10[0:9] = 10'b0000000000;
@@ -1720,15 +1724,15 @@ module system
       .Sl_MIRQ ( mb_plb_Sl_MIRQ[2:3] ),
       .IP2INTC_Irpt (  ),
       .GPIO_IO_I ( xps_gpio_0_GPIO_i ),
-      .GPIO_IO_O ( xps_gpio_0_GPIO_o ),
-      .GPIO_IO_T ( xps_gpio_0_GPIO_t ),
-      .GPIO2_IO_I ( net_gnd32 ),
-      .GPIO2_IO_O (  ),
+      .GPIO_IO_O (  ),
+      .GPIO_IO_T (  ),
+      .GPIO2_IO_I ( net_gnd4 ),
+      .GPIO2_IO_O ( xps_gpio_0_GPIO2_IO_O ),
       .GPIO2_IO_T (  )
     );
 
-  system_twi_master_0_wrapper
-    twi_master_0 (
+  system_twi_master_video_wrapper
+    twi_master_video (
       .SPLB_Clk ( clk_100_0000MHz ),
       .SPLB_Rst ( mb_plb_SPLB_Rst[2] ),
       .PLB_ABus ( mb_plb_PLB_ABus ),
@@ -1771,9 +1775,62 @@ module system
       .Sl_MWrErr ( mb_plb_Sl_MWrErr[4:5] ),
       .Sl_MRdErr ( mb_plb_Sl_MRdErr[4:5] ),
       .Sl_MIRQ ( mb_plb_Sl_MIRQ[4:5] ),
-      .i_sda ( twi_master_0_i_sda ),
+      .i_sda ( net_i_system_twi_video_sda ),
       .o_sda ( twi_master_0_o_sda ),
       .o_scl ( twi_master_0_o_scl )
+    );
+
+  system_xps_gpio_video_wrapper
+    xps_gpio_video (
+      .SPLB_Clk ( clk_100_0000MHz ),
+      .SPLB_Rst ( mb_plb_SPLB_Rst[3] ),
+      .PLB_ABus ( mb_plb_PLB_ABus ),
+      .PLB_UABus ( mb_plb_PLB_UABus ),
+      .PLB_PAValid ( mb_plb_PLB_PAValid ),
+      .PLB_SAValid ( mb_plb_PLB_SAValid ),
+      .PLB_rdPrim ( mb_plb_PLB_rdPrim[3] ),
+      .PLB_wrPrim ( mb_plb_PLB_wrPrim[3] ),
+      .PLB_masterID ( mb_plb_PLB_masterID[0:0] ),
+      .PLB_abort ( mb_plb_PLB_abort ),
+      .PLB_busLock ( mb_plb_PLB_busLock ),
+      .PLB_RNW ( mb_plb_PLB_RNW ),
+      .PLB_BE ( mb_plb_PLB_BE ),
+      .PLB_MSize ( mb_plb_PLB_MSize ),
+      .PLB_size ( mb_plb_PLB_size ),
+      .PLB_type ( mb_plb_PLB_type ),
+      .PLB_lockErr ( mb_plb_PLB_lockErr ),
+      .PLB_wrDBus ( mb_plb_PLB_wrDBus ),
+      .PLB_wrBurst ( mb_plb_PLB_wrBurst ),
+      .PLB_rdBurst ( mb_plb_PLB_rdBurst ),
+      .PLB_wrPendReq ( mb_plb_PLB_wrPendReq ),
+      .PLB_rdPendReq ( mb_plb_PLB_rdPendReq ),
+      .PLB_wrPendPri ( mb_plb_PLB_wrPendPri ),
+      .PLB_rdPendPri ( mb_plb_PLB_rdPendPri ),
+      .PLB_reqPri ( mb_plb_PLB_reqPri ),
+      .PLB_TAttribute ( mb_plb_PLB_TAttribute ),
+      .Sl_addrAck ( mb_plb_Sl_addrAck[3] ),
+      .Sl_SSize ( mb_plb_Sl_SSize[6:7] ),
+      .Sl_wait ( mb_plb_Sl_wait[3] ),
+      .Sl_rearbitrate ( mb_plb_Sl_rearbitrate[3] ),
+      .Sl_wrDAck ( mb_plb_Sl_wrDAck[3] ),
+      .Sl_wrComp ( mb_plb_Sl_wrComp[3] ),
+      .Sl_wrBTerm ( mb_plb_Sl_wrBTerm[3] ),
+      .Sl_rdDBus ( mb_plb_Sl_rdDBus[96:127] ),
+      .Sl_rdWdAddr ( mb_plb_Sl_rdWdAddr[12:15] ),
+      .Sl_rdDAck ( mb_plb_Sl_rdDAck[3] ),
+      .Sl_rdComp ( mb_plb_Sl_rdComp[3] ),
+      .Sl_rdBTerm ( mb_plb_Sl_rdBTerm[3] ),
+      .Sl_MBusy ( mb_plb_Sl_MBusy[6:7] ),
+      .Sl_MWrErr ( mb_plb_Sl_MWrErr[6:7] ),
+      .Sl_MRdErr ( mb_plb_Sl_MRdErr[6:7] ),
+      .Sl_MIRQ ( mb_plb_Sl_MIRQ[6:7] ),
+      .IP2INTC_Irpt (  ),
+      .GPIO_IO_I ( net_i_system_gpio_video ),
+      .GPIO_IO_O (  ),
+      .GPIO_IO_T (  ),
+      .GPIO2_IO_I ( net_gnd32 ),
+      .GPIO2_IO_O ( xps_gpio_1_GPIO2_IO_O ),
+      .GPIO2_IO_T (  )
     );
 
 endmodule

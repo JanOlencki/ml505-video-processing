@@ -11,7 +11,6 @@ module dviOutStreamerTest;
 
 	dviOutStreamer uut (
 		.iClk_0(iClk_0), 
-		.iClk_90(iClk_90), 
 		.iRst(iRst), 
 		.oData(oData), 
 		.oHsync(oHsync), 
@@ -21,14 +20,12 @@ module dviOutStreamerTest;
 
 	initial begin
 		iClk_0 = 0;
-		iClk_90 = 0;
 		iRst = 1;
 		#50 iRst = 0;
 	end
 
 	always begin
 		#5 iClk_0 = ~iClk_0;
-		#5 iClk_90 = ~iClk_90;
 	end
       
 endmodule

@@ -30,14 +30,13 @@ wire oSysTwiVideoScl;
 wire [31:0] sysVideoStatus;
 wire [31:0] sysVideoControl;
 
-wire videoClk_0;
-wire videoClk_90;
 wire videoClk2x_0;
 wire videoClk2x_90;
-wire videoClk2x_180;
+wire videoClk2x_270;
 wire videoClkLocked;
 wire videoRst;
 wire dviRst;
+wire dviTest;
 
 assign sysClk = iTopClk;
 assign sysRst = iTopRst;
@@ -67,23 +66,22 @@ OBUFT instBufScl (
 videoClkPll instance_name (
     .CLKIN1_IN(iVgaClk), 
     .RST_IN(videoRst), 
-    .CLKOUT0_OUT(videoClk_0), 
-    .CLKOUT1_OUT(videoClk_90), 
-    .CLKOUT2_OUT(videoClk2x_0), 
-    .CLKOUT3_OUT(videoClk2x_90), 
-    .CLKOUT4_OUT(videoClk2x_180), 
+    .CLKOUT0_OUT(videoClk2x_0), 
+    .CLKOUT1_OUT(videoClk2x_90), 
+    .CLKOUT2_OUT(videoClk2x_270),
     .LOCKED_OUT(videoClkLocked)
 );
 
 assign videoRst = iTopRst | sysVideoControl[0];
 assign dviRst = videoRst | ~videoClkLocked | sysVideoControl[1];
 assign oDviRst = ~videoRst;
-assign oDviClk_p = videoClk2x_0;
-assign oDviClk_n = videoClk2x_180;
+assign oDviClk_p = videoClk2x_90;
+assign oDviClk_n = videoClk2x_270;
 assign sysVideoStatus = {28'b0, videoClkLocked, dviRst, videoRst};
-assign oLedGreen[7:4] = {3'b0, videoClkLocked};
+assign oLedGreen[7:4] = {2'b0, videoRst, videoClkLocked};
+assign dviTest = sysVideoControl[2] | iDipSwitch[4];
 
-dviOutStreamer #(
+vgaToDviConverter #(
     .H_ACTIVE_COUNT(800),
     .H_FRONT_PORCH(40),
     .H_SYNC(128),
@@ -92,10 +90,15 @@ dviOutStreamer #(
     .V_FRONT_PORCH(1),
     .V_SYNC(4),
     .V_BACK_PORCH(23)
-) dviOutStreamerInst (
+) vgaToDviConverterInst (
+    .iHsync(iVgaHsync),
+    .iVsync(iVgaVsync),
+    .iDataRed(iVgaDataRed),
+    .iDataGreen(iVgaDataGreen),
+    .iDataBlue(iVgaDataBlue),
     .iClk_0(videoClk2x_0),
-    .iClk_90(videoClk2x_90),
     .iRst(dviRst),
+    .iTest(dviTest),
     .oData(oDviData),
     .oHsync(oDviHsync),
     .oVsync(oDviVsync),
