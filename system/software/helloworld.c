@@ -45,6 +45,7 @@ int main()
 	TWIMaster twiMasterVideo;
 	XGpio videoGpio;
 	char strBuf[33];
+	u32 videoConfig;
 	u32 i;
 
     init_platform();
@@ -53,9 +54,10 @@ int main()
     XGpio_SetDataDirection(&videoGpio, 1, 0xFFFFFFFF);
     XGpio_SetDataDirection(&videoGpio, 2, 0x00000000);
 
-    XGpio_DiscreteWrite(&videoGpio, 2, 0x01);
+    videoConfig = (32+3)<<21 | 0<<11;
+    XGpio_DiscreteWrite(&videoGpio, 2, videoConfig|0x01);
     for(i = 0; i < 10; i++) asm("NOP");
-    XGpio_DiscreteWrite(&videoGpio, 2, 0x00);
+    XGpio_DiscreteWrite(&videoGpio, 2, videoConfig);
     xil_printf("VideoStatus = %s\n", toBin(XGpio_DiscreteRead(&videoGpio, 1), 32, strBuf));
     xil_printf("VideoControl = %s\n", toBin(XGpio_DiscreteRead(&videoGpio, 2), 32, strBuf));
 

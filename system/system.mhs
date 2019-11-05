@@ -17,13 +17,15 @@
 
  PORT i_system_clk = CLK_S, DIR = I, SIGIS = CLK, CLK_FREQ = 100000000
  PORT i_system_rst = sys_rst_s, DIR = I, SIGIS = RST, RST_POLARITY = 1
- PORT i_system_gpio = xps_gpio_0_GPIO_i, DIR = I, VEC = [0:3]
- PORT i_system_gpio_video = net_i_system_gpio_video, DIR = I, VEC = [0:31]
- PORT o_system_gpio_video = xps_gpio_1_GPIO2_IO_O, DIR = O, VEC = [0:31]
- PORT i_system_twi_video_sda = net_i_system_twi_video_sda, DIR = I
+ PORT i_system_gpio = gpio_0_GPIO_i, DIR = I, VEC = [0:3]
+ PORT o_system_gpio = gpio_0_GPIO_2_o, DIR = O, VEC = [0:3]
+ PORT i_system_gpio_oloop = gpio_0_GPIO_2_oloop, DIR = I, VEC = [0:3]
+ PORT i_system_gpio_video = gpio_video_GPIO_i, DIR = I, VEC = [0:31]
+ PORT o_system_gpio_video = gpio_video_GPIO_2_o, DIR = O, VEC = [0:31]
+ PORT i_system_gpio_video_oloop = gpio_video_GPIO_2_oloop, DIR = I, VEC = [0:31]
+ PORT i_system_twi_video_sda = twi_master_0_i_sda, DIR = I
  PORT o_system_twi_video_sda = twi_master_0_o_sda, DIR = O
  PORT o_system_twi_video_scl = twi_master_0_o_scl, DIR = O
- PORT o_system_gpio = xps_gpio_0_GPIO2_IO_O, DIR = O, VEC = [0:3]
 
 
 BEGIN microblaze
@@ -136,10 +138,9 @@ BEGIN xps_gpio
  PARAMETER C_ALL_INPUTS = 1
  PARAMETER C_GPIO2_WIDTH = 4
  BUS_INTERFACE SPLB = mb_plb
- PORT GPIO_IO_I = xps_gpio_0_GPIO_i
- PORT GPIO_IO_O = xps_gpio_0_GPIO_o
- PORT GPIO_IO_T = xps_gpio_0_GPIO_t
- PORT GPIO2_IO_O = xps_gpio_0_GPIO2_IO_O
+ PORT GPIO_IO_I = gpio_0_GPIO_i
+ PORT GPIO2_IO_O = gpio_0_GPIO_2_o
+ PORT GPIO2_IO_I = gpio_0_GPIO_2_oloop
 END
 
 BEGIN twi_master
@@ -148,7 +149,7 @@ BEGIN twi_master
  PARAMETER C_BASEADDR = 0xc5e00000
  PARAMETER C_HIGHADDR = 0xc5e0ffff
  BUS_INTERFACE SPLB = mb_plb
- PORT i_sda = net_i_system_twi_video_sda
+ PORT i_sda = twi_master_0_i_sda
  PORT o_sda = twi_master_0_o_sda
  PORT o_scl = twi_master_0_o_scl
 END
@@ -161,7 +162,8 @@ BEGIN xps_gpio
  PARAMETER C_BASEADDR = 0x81400000
  PARAMETER C_HIGHADDR = 0x8140ffff
  BUS_INTERFACE SPLB = mb_plb
- PORT GPIO_IO_I = net_i_system_gpio_video
- PORT GPIO2_IO_O = xps_gpio_1_GPIO2_IO_O
+ PORT GPIO_IO_I = gpio_video_GPIO_i
+ PORT GPIO2_IO_O = gpio_video_GPIO_2_o
+ PORT GPIO2_IO_I = gpio_video_GPIO_2_oloop
 END
 

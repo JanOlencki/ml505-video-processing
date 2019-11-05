@@ -1,6 +1,17 @@
 `include "verilog/common.v"
 
-module vgaToDviConverter(
+module vgaToDviConverter #(
+    parameter H_ACTIVE_COUNT = 24,
+    parameter H_FRONT_PORCH = 2,
+    parameter H_SYNC = 8,
+    parameter H_BACK_PORCH = 4,
+    parameter H_TOTAL = H_ACTIVE_COUNT + H_FRONT_PORCH + H_SYNC + H_BACK_PORCH,
+    parameter V_ACTIVE_COUNT = 16,
+    parameter V_FRONT_PORCH = 2,
+    parameter V_SYNC = 4,
+    parameter V_BACK_PORCH = 8,
+    parameter V_TOTAL = V_ACTIVE_COUNT + V_FRONT_PORCH + V_SYNC + V_BACK_PORCH
+)(
     input iHsync,
     input iVsync,
     input [7:0] iDataRed,
@@ -9,43 +20,32 @@ module vgaToDviConverter(
     input iClk_0,
     input iRst,
     input iTest,
-    input iConfigVsync,
+    input [`CLOG2(H_TOTAL):0] iHsyncOffset,
+    input [`CLOG2(V_TOTAL):0] iVsyncOffset,
     output reg [11:0] oData,
     output reg oHsync,
     output reg oVsync,
     output reg oDe
 );
 
-
-parameter H_ACTIVE_COUNT = 24;
-parameter H_FRONT_PORCH = 2;
-parameter H_SYNC = 8;
-parameter H_BACK_PORCH = 4;
-localparam H_TOTAL = H_ACTIVE_COUNT + H_FRONT_PORCH + H_SYNC + H_BACK_PORCH;
-parameter V_ACTIVE_COUNT = 16;
-parameter V_FRONT_PORCH = 2;
-parameter V_SYNC = 4;
-parameter V_BACK_PORCH = 8;
-localparam V_TOTAL = V_ACTIVE_COUNT + V_FRONT_PORCH + V_SYNC + V_BACK_PORCH;
+reg pixelSub;
+reg [`CLOG2(H_TOTAL):0]  hPixel;
+reg [`CLOG2(V_TOTAL):0]  vPixel;
 reg [8:0] frameIndex;
 
 reg [7:0] testPatternLuminance;
 reg testPatternRed;
 reg testPatternGreen;
 reg testPatternBlue;
-reg pixelSub;
-reg [`CLOG2(H_TOTAL):0]  hPixel;
-reg [`CLOG2(V_TOTAL):0]  vPixel;
-
-reg hasHsync;
-reg hasVsync;
 reg [7:0] dataBufRed;
 reg [7:0] dataBufGreen;
 reg [7:0] dataBufBlue;
+reg [`CLOG2(H_TOTAL):0] hsyncOffsetBuff;
+reg [`CLOG2(V_TOTAL):0] vsyncOffsetBuff;
 reg [7:0] hsyncBuff;
 reg [7:0] vsyncBuff;
 
-always @(posedge iClk_0) begin
+always @(posedge iClk_0 or posedge iRst) begin
     if(iRst) begin
         oData <= 0;
         oHsync <= 1;
@@ -57,46 +57,42 @@ always @(posedge iClk_0) begin
         vPixel <= 0;
         frameIndex <= 0;
 
-        hasHsync <= 0;
-        hasVsync <= 0;
+        hsyncOffsetBuff <= iHsyncOffset;
+        vsyncOffsetBuff <= iVsyncOffset;
         hsyncBuff <= 0;
         vsyncBuff <= 0;
     end
     else begin      
         pixelSub <= ~pixelSub;
         hsyncBuff <= {hsyncBuff[6:0], iHsync};
-        if(!hasHsync) begin
-            if(hsyncBuff == 8'h0F) begin
-                hasHsync <= 1;
-                hPixel <= H_ACTIVE_COUNT+32+3;
-                pixelSub <= 1;
-            end
+        vsyncBuff <= {vsyncBuff[6:0], iVsync};
+
+        if(hsyncBuff == 8'h0F) begin
+            hPixel <= H_ACTIVE_COUNT + hsyncOffsetBuff; //iHsyncOffset;
+            pixelSub <= 1;
         end
         else if(pixelSub) begin
             hPixel <= hPixel + 1;
             if(hPixel == H_TOTAL - 1) begin
                 hPixel <= 0;
             end
+        end
 
-            if(!hasVsync) begin
-                if(vsyncBuff == 8'h0F) begin
-                    hasVsync <= 1;
-                    vPixel <= V_ACTIVE_COUNT;
-                end
-            end
-            else if(hPixel == H_TOTAL - 1) begin
-                vPixel <= vPixel + 1;
-                if(vPixel == V_TOTAL - 1) begin
-                    vPixel <= 0;
-                    frameIndex <= frameIndex + 1;
-                end
+        if(vsyncBuff == 8'h0F) begin
+            vPixel <= V_ACTIVE_COUNT + vsyncOffsetBuff; //iVsyncOffset;
+        end
+        else if(hPixel == H_TOTAL - 1 && pixelSub) begin
+            vPixel <= vPixel + 1;
+            if(vPixel == V_TOTAL - 1) begin
+                vPixel <= 0;
+                frameIndex <= frameIndex + 1;
             end
         end
-        else begin
+
+        if(!pixelSub) begin
             dataBufRed <= iDataRed;
             dataBufGreen <= iDataGreen;
             dataBufBlue <= iDataBlue;
-            vsyncBuff <= {vsyncBuff[6:0], iVsync};
         end
 
         if(hPixel == H_ACTIVE_COUNT+H_FRONT_PORCH && !pixelSub) begin

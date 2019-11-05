@@ -45,11 +45,13 @@ assign sysRst = iTopRst;
     .i_system_rst(sysRst),
     .i_system_gpio(iDipSwitch[3:0]),
     .o_system_gpio(oLedGreen[3:0]),
+    .i_system_gpio_oloop(oLedGreen[3:0]),
     .i_system_twi_video_sda(iSysTwiVideoSda),
     .o_system_twi_video_sda(oSysTwiVideoSda),
     .o_system_twi_video_scl(oSysTwiVideoScl),
     .i_system_gpio_video(sysVideoStatus),
-    .o_system_gpio_video(sysVideoControl)
+    .o_system_gpio_video(sysVideoControl),
+    .i_system_gpio_video_oloop(sysVideoControl)
 );
 IOBUF instBufSda (
     .O(iSysTwiVideoSda),
@@ -99,6 +101,8 @@ vgaToDviConverter #(
     .iClk_0(videoClk2x_0),
     .iRst(dviRst),
     .iTest(dviTest),
+    .iHsyncOffset(sysVideoControl[31:21]),
+    .iVsyncOffset(sysVideoControl[20:11]),
     .oData(oDviData),
     .oHsync(oDviHsync),
     .oVsync(oDviVsync),
