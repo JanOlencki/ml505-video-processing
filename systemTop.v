@@ -20,6 +20,17 @@ module systemTop (
     output [11:0] oDviData
 );
 
+localparam H_ACTIVE = 800;
+localparam H_FRONT_PORCH = 40;
+localparam H_SYNC = 128;
+localparam H_BACK_PORCH = 88;
+localparam H_TOTAL = H_ACTIVE + H_FRONT_PORCH + H_SYNC + H_BACK_PORCH;
+localparam V_ACTIVE = 600;
+localparam V_FRONT_PORCH = 1;
+localparam V_SYNC = 4;
+localparam V_BACK_PORCH = 23;
+localparam V_TOTAL = V_ACTIVE + V_FRONT_PORCH + V_SYNC + V_BACK_PORCH;
+
 wire iTopRst = ~iTopRst_neg;
 
 wire sysClk;
@@ -37,6 +48,8 @@ wire videoClkLocked;
 wire videoRst;
 wire dviRst;
 wire dviTest;
+wire vgaSync, vgaActive;
+wire [7:0] vgaDataRed, vgaDataGreen, vgaDataBlue;
 
 assign sysClk = iTopClk;
 assign sysRst = iTopRst;
@@ -65,7 +78,7 @@ OBUFT instBufScl (
     .T(oSysTwiVideoScl)
 );
 
-videoClkPll instance_name (
+videoClkPll videoClkPllInst (
     .CLKIN1_IN(iVgaClk), 
     .RST_IN(videoRst), 
     .CLKOUT0_OUT(videoClk2x_0), 
@@ -73,7 +86,6 @@ videoClkPll instance_name (
     .CLKOUT2_OUT(videoClk2x_270),
     .LOCKED_OUT(videoClkLocked)
 );
-
 assign videoRst = iTopRst | sysVideoControl[0];
 assign dviRst = videoRst | ~videoClkLocked | sysVideoControl[1];
 assign oDviRst = ~videoRst;
@@ -83,32 +95,48 @@ assign sysVideoStatus = {28'b0, videoClkLocked, dviRst, videoRst};
 assign oLedGreen[7:4] = {2'b0, videoRst, videoClkLocked};
 assign dviTest = sysVideoControl[2] | iDipSwitch[4];
 
-vgaToDviConverter #(
-    .H_ACTIVE_COUNT(800),
-    .H_FRONT_PORCH(40),
-    .H_SYNC(128),
-    .H_BACK_PORCH(88),
-    .V_ACTIVE_COUNT(600),
-    .V_FRONT_PORCH(1),
-    .V_SYNC(4),
-    .V_BACK_PORCH(23)
-) vgaToDviConverterInst (
+vgaReceiver #(
+    .H_ACTIVE(H_ACTIVE),
+    .H_TOTAL(H_TOTAL),
+    .V_ACTIVE(V_ACTIVE),
+    .V_TOTAL(V_TOTAL)
+) vgaReceiverInst (
+    .iClk(videoClk2x_0),
+    .iRst(dviRst),
     .iHsync(iVgaHsync),
     .iVsync(iVgaVsync),
     .iDataRed(iVgaDataRed),
     .iDataGreen(iVgaDataGreen),
     .iDataBlue(iVgaDataBlue),
-    .iClk_0(videoClk2x_0),
-    .iRst(dviRst),
-    .iTest(dviTest),
     .iHsyncOffset(sysVideoControl[31:21]),
     .iVsyncOffset(sysVideoControl[20:11]),
+    .oPixelSync(vgaSync),
+    .oPixelActive(vgaActive),
+    .oDataRed(vgaDataRed),
+    .oDataGreen(vgaDataGreen),
+    .oDataBlue(vgaDataBlue)
+);
+
+dviTransmitter #(
+    .H_ACTIVE(H_ACTIVE),
+    .H_FRONT_PORCH(H_FRONT_PORCH),
+    .H_SYNC(H_SYNC),
+    .H_BACK_PORCH(H_BACK_PORCH),
+    .V_ACTIVE(V_ACTIVE),
+    .V_FRONT_PORCH(V_FRONT_PORCH),
+    .V_SYNC(V_SYNC),
+    .V_BACK_PORCH(V_BACK_PORCH)
+) dviTransmitterInst (
+    .iClk(videoClk2x_0),
+    .iRst(dviRst),
+    .iPixelSync(vgaSync),
+    .iPixelActive(vgaActive),
+    .iDataRed(vgaDataRed),
+    .iDataGreen(vgaDataGreen),
+    .iDataBlue(vgaDataBlue),
     .oData(oDviData),
     .oHsync(oDviHsync),
     .oVsync(oDviVsync),
     .oDe(oDviDe)
 );
-
 endmodule
-
-
