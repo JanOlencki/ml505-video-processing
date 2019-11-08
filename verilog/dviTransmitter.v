@@ -34,7 +34,6 @@ videoClockGenerator #(
     .H_TOTAL(H_TOTAL),
     .V_ACTIVE(V_ACTIVE),
     .V_TOTAL(V_TOTAL),
-    .SYNC_DELAY_SUB(0),
     .SYNC_DELAY_H(0),
     .SYNC_DELAY_V(0)
 ) videoClockGeneratorInst (
