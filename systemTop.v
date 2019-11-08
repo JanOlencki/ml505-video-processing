@@ -45,11 +45,13 @@ wire videoClk2x_0;
 wire videoClk2x_90;
 wire videoClk2x_270;
 wire videoClkLocked;
-wire videoRst;
-wire dviRst;
-wire dviTest;
+wire videoRstHard;
+wire videoRstSoft;
+wire dviTestData;
 wire vgaSync, vgaActive;
 wire [7:0] vgaDataRed, vgaDataGreen, vgaDataBlue;
+wire dviSync, dviActive;
+wire [7:0] dviDataRed, dviDataGreen, dviDataBlue;
 
 assign sysClk = iTopClk;
 assign sysRst = iTopRst;
@@ -80,20 +82,20 @@ OBUFT instBufScl (
 
 videoClkPll videoClkPllInst (
     .CLKIN1_IN(iVgaClk), 
-    .RST_IN(videoRst), 
+    .RST_IN(videoRstHard), 
     .CLKOUT0_OUT(videoClk2x_0), 
     .CLKOUT1_OUT(videoClk2x_90), 
     .CLKOUT2_OUT(videoClk2x_270),
     .LOCKED_OUT(videoClkLocked)
 );
-assign videoRst = iTopRst | sysVideoControl[0];
-assign dviRst = videoRst | ~videoClkLocked | sysVideoControl[1];
-assign oDviRst = ~videoRst;
+assign videoRstHard = iTopRst | sysVideoControl[0];
+assign videoRstSoft = videoRstHard | ~videoClkLocked | sysVideoControl[1] | iDipSwitch[5];
+assign oDviRst = ~videoRstHard;
 assign oDviClk_p = videoClk2x_90;
 assign oDviClk_n = videoClk2x_270;
-assign sysVideoStatus = {28'b0, videoClkLocked, dviRst, videoRst};
-assign oLedGreen[7:4] = {2'b0, videoRst, videoClkLocked};
-assign dviTest = sysVideoControl[2] | iDipSwitch[4];
+assign sysVideoStatus = {28'b0, videoClkLocked, videoRstSoft, videoRstHard};
+assign oLedGreen[7:4] = {2'b0, videoRstSoft, videoClkLocked};
+assign dviTestData = sysVideoControl[2] | iDipSwitch[4];
 
 vgaReceiver #(
     .H_ACTIVE(H_ACTIVE),
@@ -102,7 +104,7 @@ vgaReceiver #(
     .V_TOTAL(V_TOTAL)
 ) vgaReceiverInst (
     .iClk(videoClk2x_0),
-    .iRst(dviRst),
+    .iRst(videoRstSoft),
     .iHsync(iVgaHsync),
     .iVsync(iVgaVsync),
     .iDataRed(iVgaDataRed),
@@ -117,6 +119,27 @@ vgaReceiver #(
     .oDataBlue(vgaDataBlue)
 );
 
+videoTestData #(
+    .H_ACTIVE(H_ACTIVE),
+    .H_TOTAL(H_TOTAL),
+    .V_ACTIVE(V_ACTIVE),
+    .V_TOTAL(V_TOTAL)
+) videoTestDataInst (
+    .iClk(videoClk2x_0),
+    .iRst(videoRstSoft),
+    .iPixelSync(vgaSync),
+    .iPixelActive(vgaActive),
+    .iDataRed(vgaDataRed),
+    .iDataGreen(vgaDataGreen),
+    .iDataBlue(vgaDataBlue),
+    .iTestData(dviTestData),
+    .oPixelSync(dviSync),
+    .oPixelActive(dviActive),
+    .oDataRed(dviDataRed),
+    .oDataGreen(dviDataGreen),
+    .oDataBlue(dviDataBlue)
+);
+
 dviTransmitter #(
     .H_ACTIVE(H_ACTIVE),
     .H_FRONT_PORCH(H_FRONT_PORCH),
@@ -128,12 +151,12 @@ dviTransmitter #(
     .V_BACK_PORCH(V_BACK_PORCH)
 ) dviTransmitterInst (
     .iClk(videoClk2x_0),
-    .iRst(dviRst),
-    .iPixelSync(vgaSync),
-    .iPixelActive(vgaActive),
-    .iDataRed(vgaDataRed),
-    .iDataGreen(vgaDataGreen),
-    .iDataBlue(vgaDataBlue),
+    .iRst(videoRstSoft),
+    .iPixelSync(dviSync),
+    .iPixelActive(dviActive),
+    .iDataRed(dviDataRed),
+    .iDataGreen(dviDataGreen),
+    .iDataBlue(dviDataBlue),
     .oData(oDviData),
     .oHsync(oDviHsync),
     .oVsync(oDviVsync),

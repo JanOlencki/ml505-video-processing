@@ -38,9 +38,6 @@ always @(posedge iClk or posedge iRst) begin
         vpixel <= 0;
         oPixelSync <= 0;
         oPixelActive <= 0;
-
-        hsyncOffsetBuff <= iHsyncOffset;
-        vsyncOffsetBuff <= iVsyncOffset;
         hsyncBuff <= 0;
         vsyncBuff <= 0;
     end
@@ -50,7 +47,7 @@ always @(posedge iClk or posedge iRst) begin
         vsyncBuff <= {vsyncBuff[6:0], iVsync};
 
         if(hsyncBuff == 8'h0F) begin
-            hpixel <= H_ACTIVE + hsyncOffsetBuff; 
+            hpixel <= H_ACTIVE + iHsyncOffset; 
             pixelSub <= 1;
         end
         else if(pixelSub) begin
@@ -60,7 +57,7 @@ always @(posedge iClk or posedge iRst) begin
             end
         end
         if(vsyncBuff == 8'h0F) begin
-            vpixel <= V_ACTIVE + vsyncOffsetBuff;
+            vpixel <= V_ACTIVE + iVsyncOffset;
         end
         else if(hpixel == H_TOTAL-1 && pixelSub) begin
             vpixel <= vpixel + 1;

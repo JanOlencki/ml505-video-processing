@@ -5,6 +5,7 @@ module videoClockGenerator #(
     parameter H_TOTAL = 32,
     parameter V_ACTIVE = 16,
     parameter V_TOTAL = 24,
+    parameter SYNC_DELAY_SUB = 1,
     parameter SYNC_DELAY_H = 0,
     parameter SYNC_DELAY_V = 0
 )(
@@ -31,7 +32,7 @@ always @(posedge iClk or posedge iRst) begin
         oPixelActive <= 0;
     end
     else begin      
-        oPixelSync <= oPixelSub && oHpixel == (H_TOTAL-1 + SYNC_DELAY_H)%H_TOTAL && oVpixel == (V_TOTAL-1 + SYNC_DELAY_V)%V_TOTAL;
+        oPixelSync <= oPixelSub == SYNC_DELAY_SUB && oHpixel == (H_TOTAL-1 + SYNC_DELAY_H)%H_TOTAL && oVpixel == (V_TOTAL-1 + SYNC_DELAY_V)%V_TOTAL;
         oPixelActive <= oHpixel < (H_ACTIVE + SYNC_DELAY_H)%H_TOTAL && oVpixel < (V_ACTIVE + SYNC_DELAY_V)%V_TOTAL;
         
         oPixelSub <= ~oPixelSub;
