@@ -44,6 +44,7 @@ int main()
 {
 	TWIMaster twiMasterVideo;
 	XGpio videoGpio;
+	XGpio scannerGpio;
 	char strBuf[33];
 	u32 videoConfig;
 	u32 i;
@@ -53,7 +54,11 @@ int main()
     XGpio_Initialize(&videoGpio, XPAR_XPS_GPIO_VIDEO_DEVICE_ID);
     XGpio_SetDataDirection(&videoGpio, 1, 0xFFFFFFFF);
     XGpio_SetDataDirection(&videoGpio, 2, 0x00000000);
+    XGpio_Initialize(&scannerGpio, XPAR_XPS_GPIO_SCANNER_DEVICE_ID);
+	XGpio_SetDataDirection(&scannerGpio, 1, 0xFFFFFFFF);
+	XGpio_SetDataDirection(&scannerGpio, 2, 0x00000000);
 
+	XGpio_DiscreteWrite(&scannerGpio, 2, 0x808080);
     videoConfig = (32+3)<<21 | 0<<11;
     XGpio_DiscreteWrite(&videoGpio, 2, videoConfig|0x01);
     for(i = 0; i < 10; i++) asm("NOP");

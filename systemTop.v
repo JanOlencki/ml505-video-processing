@@ -40,6 +40,8 @@ wire oSysTwiVideoSda;
 wire oSysTwiVideoScl;
 wire [31:0] sysVideoStatus;
 wire [31:0] sysVideoControl;
+wire [31:0] sysScannerStatus;
+wire [31:0] sysScannerControl;
 
 wire videoClk2x_0;
 wire videoClk2x_90;
@@ -47,11 +49,18 @@ wire videoClk2x_270;
 wire videoClkLocked;
 wire videoRstHard;
 wire videoRstSoft;
-wire dviTestData;
+wire videoTestData;
 wire vgaSync, vgaActive;
 wire [7:0] vgaDataRed, vgaDataGreen, vgaDataBlue;
-wire dviSync, dviActive;
-wire [7:0] dviDataRed, dviDataGreen, dviDataBlue;
+wire scannerVideoSync, scannerVideoActive;
+wire scannerVideoModule, scannerVideoMarker, scannerVideoDigit;
+reg [7:0] scannerVideoRed, scannerVideoGreen, scannerVideoBlue;
+wire [51:0] scannerDataCode;
+wire scannerNewData;
+wire binVideoSync, binVideoActive;
+wire binVideoData;
+wire videoMuxSync, videoMuxActive;
+wire [7:0] videoMuxDataRed, videoMuxDataGreen, videoMuxDataBlue;
 
 assign sysClk = iTopClk;
 assign sysRst = iTopRst;
@@ -66,7 +75,10 @@ assign sysRst = iTopRst;
     .o_system_twi_video_scl(oSysTwiVideoScl),
     .i_system_gpio_video(sysVideoStatus),
     .o_system_gpio_video(sysVideoControl),
-    .i_system_gpio_video_oloop(sysVideoControl)
+    .i_system_gpio_video_oloop(sysVideoControl),
+    .i_system_gpio_scanner(sysScannerStatus),
+    .o_system_gpio_scanner(sysScannerControl),
+    .i_system_gpio_scanner_oloop(sysScannerControl)
 );
 IOBUF instBufSda (
     .O(iSysTwiVideoSda),
@@ -95,7 +107,7 @@ assign oDviClk_p = videoClk2x_90;
 assign oDviClk_n = videoClk2x_270;
 assign sysVideoStatus = {28'b0, videoClkLocked, videoRstSoft, videoRstHard};
 assign oLedGreen[7:4] = {2'b0, videoRstSoft, videoClkLocked};
-assign dviTestData = sysVideoControl[2] | iDipSwitch[4];
+assign videoTestData = sysVideoControl[2] | iDipSwitch[4];
 
 vgaReceiver #(
     .H_ACTIVE(H_ACTIVE),
@@ -119,6 +131,61 @@ vgaReceiver #(
     .oDataBlue(vgaDataBlue)
 );
 
+scannerRGB2Bin scannerRGB2BinInst (
+    .iClk(videoClk2x_0),
+    .iRst(videoRstSoft),
+    .iPixelSync(vgaSync),
+    .iPixelActive(vgaActive),
+    .iDataRed(vgaDataRed),
+    .iDataGreen(vgaDataGreen),
+    .iDataBlue(vgaDataBlue),
+    .iThreshRed(sysScannerControl[7:0]),
+    .iThreshGreen(sysScannerControl[15:8]),
+    .iThreshBlue(sysScannerControl[23:16]),
+    .oPixelSync(binVideoSync),
+    .oPixelActive(binVideoActive),
+    .oDataBin(binVideoData)
+);
+
+scannerEAN13 #(
+    .H_ACTIVE(H_ACTIVE),
+    .H_TOTAL(H_TOTAL),
+    .V_ACTIVE(V_ACTIVE),
+    .V_TOTAL(V_TOTAL),
+    .MIN_MODULE_WIDTH(3),
+    .MAX_MODULE_WIDTH(8),
+    .TOL_MODULE_WIDTH(1)
+) scannerEAN13 (
+    .iClk(videoClk2x_0),
+    .iRst(videoRstSoft),
+    .iPixelSync(binVideoSync),
+    .iPixelActive(binVideoActive),
+    .iPixelData(binVideoData),
+    .oPixelSync(scannerVideoSync),
+    .oPixelActive(scannerVideoActive),
+    .oVideoModule(scannerVideoModule),
+    .oVideoMarker(scannerVideoMarker),
+    .oVideoDigit(scannerVideoDigit),
+    .oDataCode(scannerDataCode),
+    .oNewData(scannerNewData)
+);
+always @* begin
+    scannerVideoRed = {8{scannerVideoMarker}};
+    scannerVideoGreen = {8{scannerVideoDigit}};
+    scannerVideoBlue = 0;
+    if(scannerVideoModule) begin
+        scannerVideoRed = {1'b0, scannerVideoRed[7:1]};
+        scannerVideoGreen = {1'b0, scannerVideoGreen[7:1]};
+        scannerVideoBlue = {1'b0, scannerVideoBlue[7:1]};
+    end
+    else begin
+        scannerVideoRed = {2'b1, scannerVideoRed[7:1]};
+        scannerVideoGreen = {2'b1, scannerVideoGreen[7:1]};
+        scannerVideoBlue = {2'b1, scannerVideoBlue[7:1]};
+    end
+end
+assign sysScannerStatus = scannerDataCode[31:0];
+
 videoTestData #(
     .H_ACTIVE(H_ACTIVE),
     .H_TOTAL(H_TOTAL),
@@ -127,17 +194,17 @@ videoTestData #(
 ) videoTestDataInst (
     .iClk(videoClk2x_0),
     .iRst(videoRstSoft),
-    .iPixelSync(vgaSync),
-    .iPixelActive(vgaActive),
-    .iDataRed(vgaDataRed),
-    .iDataGreen(vgaDataGreen),
-    .iDataBlue(vgaDataBlue),
-    .iTestData(dviTestData),
-    .oPixelSync(dviSync),
-    .oPixelActive(dviActive),
-    .oDataRed(dviDataRed),
-    .oDataGreen(dviDataGreen),
-    .oDataBlue(dviDataBlue)
+    .iPixelSync(scannerVideoSync),
+    .iPixelActive(scannerVideoActive),
+    .iDataRed(scannerVideoRed),
+    .iDataGreen(scannerVideoGreen),
+    .iDataBlue(scannerVideoBlue),
+    .iTestData(videoTestData),
+    .oPixelSync(videoMuxSync),
+    .oPixelActive(videoMuxActive),
+    .oDataRed(videoMuxDataRed),
+    .oDataGreen(videoMuxDataGreen),
+    .oDataBlue(videoMuxDataBlue)
 );
 
 dviTransmitter #(
@@ -152,11 +219,11 @@ dviTransmitter #(
 ) dviTransmitterInst (
     .iClk(videoClk2x_0),
     .iRst(videoRstSoft),
-    .iPixelSync(dviSync),
-    .iPixelActive(dviActive),
-    .iDataRed(dviDataRed),
-    .iDataGreen(dviDataGreen),
-    .iDataBlue(dviDataBlue),
+    .iPixelSync(videoMuxSync),
+    .iPixelActive(videoMuxActive),
+    .iDataRed(videoMuxDataRed),
+    .iDataGreen(videoMuxDataGreen),
+    .iDataBlue(videoMuxDataBlue),
     .oData(oDviData),
     .oHsync(oDviHsync),
     .oVsync(oDviVsync),

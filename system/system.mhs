@@ -23,6 +23,9 @@
  PORT i_system_gpio_video = gpio_video_GPIO_i, DIR = I, VEC = [0:31]
  PORT o_system_gpio_video = gpio_video_GPIO_2_o, DIR = O, VEC = [0:31]
  PORT i_system_gpio_video_oloop = gpio_video_GPIO_2_oloop, DIR = I, VEC = [0:31]
+ PORT i_system_gpio_scanner = gpio_scanner_GPIO_i, DIR = I, VEC = [0:31]
+ PORT o_system_gpio_scanner = gpio_scanner_GPIO_2_o, DIR = O, VEC = [0:31]
+ PORT i_system_gpio_scanner_oloop = gpio_scanner_GPIO_2_oloop, DIR = I, VEC = [0:31]
  PORT i_system_twi_video_sda = twi_master_0_i_sda, DIR = I
  PORT o_system_twi_video_sda = twi_master_0_o_sda, DIR = O
  PORT o_system_twi_video_scl = twi_master_0_o_scl, DIR = O
@@ -132,11 +135,11 @@ BEGIN xps_gpio
  PARAMETER INSTANCE = xps_gpio_0
  PARAMETER HW_VER = 2.00.a
  PARAMETER C_GPIO_WIDTH = 4
- PARAMETER C_BASEADDR = 0x81420000
- PARAMETER C_HIGHADDR = 0x8142ffff
  PARAMETER C_IS_DUAL = 1
  PARAMETER C_ALL_INPUTS = 1
  PARAMETER C_GPIO2_WIDTH = 4
+ PARAMETER C_BASEADDR = 0x81440000
+ PARAMETER C_HIGHADDR = 0x8144ffff
  BUS_INTERFACE SPLB = mb_plb
  PORT GPIO_IO_I = gpio_0_GPIO_i
  PORT GPIO2_IO_O = gpio_0_GPIO_2_o
@@ -165,5 +168,18 @@ BEGIN xps_gpio
  PORT GPIO_IO_I = gpio_video_GPIO_i
  PORT GPIO2_IO_O = gpio_video_GPIO_2_o
  PORT GPIO2_IO_I = gpio_video_GPIO_2_oloop
+END
+
+BEGIN xps_gpio
+ PARAMETER INSTANCE = xps_gpio_scanner
+ PARAMETER HW_VER = 2.00.a
+ PARAMETER C_ALL_INPUTS = 1
+ PARAMETER C_IS_DUAL = 1
+ PARAMETER C_BASEADDR = 0x81420000
+ PARAMETER C_HIGHADDR = 0x8142ffff
+ BUS_INTERFACE SPLB = mb_plb
+ PORT GPIO_IO_I = gpio_scanner_GPIO_i
+ PORT GPIO2_IO_O = gpio_scanner_GPIO_2_o
+ PORT GPIO2_IO_I = gpio_scanner_GPIO_2_oloop
 END
 
