@@ -40,7 +40,7 @@ wire oSysTwiVideoSda;
 wire oSysTwiVideoScl;
 wire [31:0] sysVideoStatus;
 wire [31:0] sysVideoControl;
-wire [31:0] sysScannerStatus;
+reg [31:0] sysScannerStatus;
 wire [31:0] sysScannerControl;
 
 wire videoClk2x_0;
@@ -184,7 +184,9 @@ always @* begin
         scannerVideoBlue = {2'b1, scannerVideoBlue[7:1]};
     end
 end
-assign sysScannerStatus = scannerDataCode[31:0];
+always @(posedge videoClk2x_0) begin
+    sysScannerStatus <= {scannerNewData, scannerDataCode[30:0]}; 
+end
 
 videoTestData #(
     .H_ACTIVE(H_ACTIVE),

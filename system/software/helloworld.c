@@ -47,6 +47,7 @@ int main()
 	XGpio scannerGpio;
 	char strBuf[33];
 	u32 videoConfig;
+	u32 scannerCode;
 	u32 i;
 
     init_platform();
@@ -112,6 +113,10 @@ int main()
 		videoStatus = XGpio_DiscreteRead(&videoGpio, 1);
 		if(!(videoStatus & 0x04)) {
 			xil_printf("VideoStatus = %s\n", toBin(videoStatus, 32, strBuf));
+		}
+		scannerCode = XGpio_DiscreteRead(&scannerGpio, 1);
+		if(scannerCode & (1<<31)) {
+			xil_printf("Code = %s\n", toBin(scannerCode, 32, strBuf));
 		}
 	}
 

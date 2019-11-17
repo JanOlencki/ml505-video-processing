@@ -24,8 +24,8 @@ module scannerEAN13Test;
     .H_TOTAL(48),
     .V_ACTIVE(8),
     .V_TOTAL(16),
-    .MIN_MODULE_WIDTH(3),
-    .MAX_MODULE_WIDTH(8),
+    .MIN_MODULE_WIDTH(4), 
+    .MAX_MODULE_WIDTH(8), 
     .TOL_MODULE_WIDTH(1)
 ) uut (
 		.iClk(iClk), 
@@ -53,12 +53,12 @@ module scannerEAN13Test;
 		#10 iPixelSync = 1;
 		#10 iPixelSync = 0;
 		iPixelActive = 1;
-		iPixelData = 0;
+		iPixelData = 1;
+		#200 iPixelData = 0;
 		#100 iPixelData = 1;
 		#80 iPixelData = 0;
 		#80 iPixelData = 1;
-		#80 iPixelData = 0;
-		#100 iPixelData = 1;
+		#200 iPixelData = 0;
 
 	end
 
