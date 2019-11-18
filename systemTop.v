@@ -1,3 +1,5 @@
+`include "verilog/common.v"
+
 module systemTop (
     input iTopClk,
     input iTopRst_neg,
@@ -56,7 +58,10 @@ wire scannerVideoSync, scannerVideoActive;
 wire scannerVideoModule, scannerVideoMarker, scannerVideoDigit;
 reg [7:0] scannerVideoRed, scannerVideoGreen, scannerVideoBlue;
 wire [51:0] scannerDataCode;
+(* KEEP = "TRUE" *) wire [61:0] sysScannerData;
+wire [`CLOG2(V_TOTAL):0] scannerVpixel;
 wire scannerNewData;
+(* KEEP = "TRUE" *) wire sysScannerFull;
 wire binVideoSync, binVideoActive;
 wire binVideoData;
 wire videoMuxSync, videoMuxActive;
@@ -78,8 +83,23 @@ assign sysRst = iTopRst;
     .i_system_gpio_video_oloop(sysVideoControl),
     .i_system_gpio_scanner(sysScannerStatus),
     .o_system_gpio_scanner(sysScannerControl),
-    .i_system_gpio_scanner_oloop(sysScannerControl)
+    .i_system_gpio_scanner_oloop(sysScannerControl),
+    .i_fifo_scanner_data(sysScannerData),
+    .i_fifo_scanner_empty(sysScannerEmpty),
+    .o_fifo_scanner_read_en(sysScannerReadEn)
 );
+scannerDataFifo scannerDataFifoInst (
+  .rst(sysRst),
+  .wr_clk(videoClk2x_0), 
+  .rd_clk(sysClk),
+  .din({scannerVpixel, scannerDataCode}),
+  .wr_en(scannerNewData),
+  .rd_en(sysScannerReadEn),
+  .dout(sysScannerData),
+  .full(sysScannerFull),
+  .empty(sysScannerEmpty)
+);
+
 IOBUF instBufSda (
     .O(iSysTwiVideoSda),
     .IO(ioBufTwiVideoSda),
@@ -167,6 +187,7 @@ scannerEAN13 #(
     .oVideoMarker(scannerVideoMarker),
     .oVideoDigit(scannerVideoDigit),
     .oDataCode(scannerDataCode),
+    .oVpixel(scannerVpixel),
     .oNewData(scannerNewData)
 );
 always @* begin

@@ -29,6 +29,9 @@
  PORT i_system_twi_video_sda = twi_master_0_i_sda, DIR = I
  PORT o_system_twi_video_sda = twi_master_0_o_sda, DIR = O
  PORT o_system_twi_video_scl = twi_master_0_o_scl, DIR = O
+ PORT i_fifo_scanner_data = fifo_interface_scanner_i_data, DIR = I, VEC = [61:0]
+ PORT i_fifo_scanner_empty = fifo_interface_scanner_i_empty, DIR = I
+ PORT o_fifo_scanner_read_en = fifo_interface_scanner_o_read_en, DIR = O
 
 
 BEGIN microblaze
@@ -181,5 +184,17 @@ BEGIN xps_gpio
  PORT GPIO_IO_I = gpio_scanner_GPIO_i
  PORT GPIO2_IO_O = gpio_scanner_GPIO_2_o
  PORT GPIO2_IO_I = gpio_scanner_GPIO_2_oloop
+END
+
+BEGIN fifo_interface
+ PARAMETER INSTANCE = fifo_interface_scanner
+ PARAMETER HW_VER = 1.00.a
+ PARAMETER C_BASEADDR = 0xc5600000
+ PARAMETER C_HIGHADDR = 0xc560ffff
+ PARAMETER C_DATA_WIDTH = 62
+ BUS_INTERFACE SPLB = mb_plb
+ PORT i_data = fifo_interface_scanner_i_data
+ PORT i_empty = fifo_interface_scanner_i_empty
+ PORT o_read_en = fifo_interface_scanner_o_read_en
 END
 
