@@ -33,7 +33,7 @@ always @(posedge iPlbClk) begin
     if(iPlbReset == 1) begin
         currentRead <= 0;
         dataBuff <= 0;
-        emptyBuff <= 0;
+        emptyBuff <= 1;
         oReadEn <= 0;
         newRead <= 1;
     end

@@ -52,31 +52,31 @@ reg [31:0] regDivider;
     reg [16*8-1 : 0] stateASCII;
     always @*
         case (state)
-            IDLE:           stateASCII <= {"0"+bitStage, "#IDLE", {10{" "}}};
-            START:          stateASCII <= {"0"+bitStage, "#START", {9{" "}}};
-            ADDRESS:        stateASCII <= {"0"+bitStage, "#ADDRESS", {7{" "}}};
-            SLV_ADDR_ACK:   stateASCII <= {"0"+bitStage, "#SLV_ADDR_ACK", {2{" "}}};
-            WRITE:          stateASCII <= {"0"+bitStage, "#WRITE", {9{" "}}};
-            SLV_DATA_ACK:   stateASCII <= {"0"+bitStage, "#SLV_DATA_ACK", {2{" "}}};
-            READ:           stateASCII <= {"0"+bitStage, "#READ", {10{" "}}};
-            MASTER_ACK:     stateASCII <= {"0"+bitStage, "#MASTER_ACK", {4{" "}}};
-            STOP:           stateASCII <= {"0"+bitStage, "#STOP", {10{" "}}};
-        default: stateASCII <= "unknown"; 
+            IDLE:           stateASCII = {"0"+bitStage, "#IDLE", {10{" "}}};
+            START:          stateASCII = {"0"+bitStage, "#START", {9{" "}}};
+            ADDRESS:        stateASCII = {"0"+bitStage, "#ADDRESS", {7{" "}}};
+            SLV_ADDR_ACK:   stateASCII = {"0"+bitStage, "#SLV_ADDR_ACK", {2{" "}}};
+            WRITE:          stateASCII = {"0"+bitStage, "#WRITE", {9{" "}}};
+            SLV_DATA_ACK:   stateASCII = {"0"+bitStage, "#SLV_DATA_ACK", {2{" "}}};
+            READ:           stateASCII = {"0"+bitStage, "#READ", {10{" "}}};
+            MASTER_ACK:     stateASCII = {"0"+bitStage, "#MASTER_ACK", {4{" "}}};
+            STOP:           stateASCII = {"0"+bitStage, "#STOP", {10{" "}}};
+        default: stateASCII = "unknown"; 
     endcase;
 
     reg [16*8-1 : 0] nextStateASCII;
     always @*
         case (nextState)
-            IDLE:           nextStateASCII <= {"IDLE", {12{" "}}};
-            START:          nextStateASCII <= {"START", {11{" "}}};
-            ADDRESS:        nextStateASCII <= {"ADDRESS", {9{" "}}};
-            SLV_ADDR_ACK:   nextStateASCII <= {"SLV_ADDR_ACK", {4{" "}}};
-            WRITE:          nextStateASCII <= {"WRITE", {11{" "}}};
-            SLV_DATA_ACK:   nextStateASCII <= {"SLV_DATA_ACK", {4{" "}}};
-            READ:           nextStateASCII <= {"READ", {12{" "}}};
-            MASTER_ACK:     nextStateASCII <= {"MASTER_ACK", {8{" "}}};
-            STOP:           nextStateASCII <= {"STOP", {12{" "}}};
-        default: stateASCII <= "unknown"; 
+            IDLE:           nextStateASCII = {"IDLE", {12{" "}}};
+            START:          nextStateASCII = {"START", {11{" "}}};
+            ADDRESS:        nextStateASCII = {"ADDRESS", {9{" "}}};
+            SLV_ADDR_ACK:   nextStateASCII = {"SLV_ADDR_ACK", {4{" "}}};
+            WRITE:          nextStateASCII = {"WRITE", {11{" "}}};
+            SLV_DATA_ACK:   nextStateASCII = {"SLV_DATA_ACK", {4{" "}}};
+            READ:           nextStateASCII = {"READ", {12{" "}}};
+            MASTER_ACK:     nextStateASCII = {"MASTER_ACK", {8{" "}}};
+            STOP:           nextStateASCII = {"STOP", {12{" "}}};
+        default: stateASCII = "unknown"; 
     endcase;
 `endif
 
@@ -84,53 +84,53 @@ always @* begin
     case(state)
         IDLE: 
             if(regStartCall)
-                nextState <= START;
+                nextState = START;
             else
-                nextState <= IDLE;
+                nextState = IDLE;
         START:
-            nextState <= ADDRESS;
+            nextState = ADDRESS;
         ADDRESS:
             if(bitIndex == 0)
-                nextState <= SLV_ADDR_ACK;
+                nextState = SLV_ADDR_ACK;
             else
-                nextState <= ADDRESS;
+                nextState = ADDRESS;
         SLV_ADDR_ACK:
             if(address[0]) 
-                nextState <= READ;
+                nextState = READ;
             else
-                nextState <= WRITE;
+                nextState = WRITE;
         WRITE:
             if(bitIndex == 0)
-                nextState <= SLV_DATA_ACK;
+                nextState = SLV_DATA_ACK;
             else
-                nextState <= WRITE;
+                nextState = WRITE;
         READ:
             if(bitIndex == 0)
-                nextState <= MASTER_ACK;
+                nextState = MASTER_ACK;
             else
-                nextState <= READ;
+                nextState = READ;
         SLV_DATA_ACK:
             if(regStartCall) begin
                 if(address == regAddress)
-                    nextState <= WRITE;
+                    nextState = WRITE;
                 else
-                    nextState <= START;
+                    nextState = START;
             end
             else
-                nextState <= STOP;
+                nextState = STOP;
         MASTER_ACK:
             if(regStartCall) begin
                 if(address == regAddress)
-                    nextState <= READ;
+                    nextState = READ;
                 else
-                    nextState <= START;
+                    nextState = START;
             end
             else
-                nextState <= STOP;
+                nextState = STOP;
         STOP:
-            nextState <= IDLE;        
+            nextState = IDLE;        
         default:
-            nextState <= IDLE;
+            nextState = IDLE;
     endcase  
 end
 
@@ -218,41 +218,41 @@ always @(posedge iPlbClk) begin
 end
 
 always @* begin
-    bussy <= state != IDLE;
+    bussy = state != IDLE;
     if(state == IDLE || state == STOP)
-        ackNotDone <= 0;
+        ackNotDone = 0;
     else if(state == SLV_DATA_ACK || state == MASTER_ACK)
-        ackNotDone <= bitStage != 0;
+        ackNotDone = bitStage != 0;
     else
-        ackNotDone <= 1;
+        ackNotDone = 1;
 
     if(state == START) begin
-        oSda <= bitStage[1];
-        oScl <= bitStage != 0;
+        oSda = bitStage[1];
+        oScl = bitStage != 0;
     end
     else if(state == ADDRESS) begin
-        oSda <= address[bitIndex];
-        oScl <= bitStage == 2 || bitStage == 1;
+        oSda = address[bitIndex];
+        oScl = bitStage == 2 || bitStage == 1;
     end
     else if(state == WRITE) begin
-        oSda <= dataWrite[bitIndex];
-        oScl <= bitStage == 2 || bitStage == 1;
+        oSda = dataWrite[bitIndex];
+        oScl = bitStage == 2 || bitStage == 1;
     end
     else if(state == SLV_ADDR_ACK || state == SLV_DATA_ACK || state == READ) begin
-        oSda <= 1;
-        oScl <= bitStage == 2 || bitStage == 1; 
+        oSda = 1;
+        oScl = bitStage == 2 || bitStage == 1; 
     end
     else if(state == MASTER_ACK) begin
-        oSda <= ~sendMasterAck;
-        oScl <= bitStage == 2 || bitStage == 1; 
+        oSda = ~sendMasterAck;
+        oScl = bitStage == 2 || bitStage == 1; 
     end
     else if(state == STOP) begin
-        oSda <= ~bitStage[1];
-        oScl <= bitStage != 3;
+        oSda = ~bitStage[1];
+        oScl = bitStage != 3;
     end
     else begin
-        oSda <= 1;
-        oScl <= 1;
+        oSda = 1;
+        oScl = 1;
     end
 end
 
@@ -304,17 +304,17 @@ always @(posedge iPlbClk) begin
 end
 always @* begin
     if(iPlbRdCE == 2'b10) begin
-        oPlbData[0:7] <= regDataWrite;
-        oPlbData[8:15] <= regDataRead;
-        oPlbData[16:23] <= regAddress;
-        oPlbData[24:25] <= {regStartCall, regSendMasterAck};
-        oPlbData[26:31] <= {1'b0, ackNotDone, dataAckError, addrAckError, regNewDataReceived, bussy};
+        oPlbData[0:7] = regDataWrite;
+        oPlbData[8:15] = regDataRead;
+        oPlbData[16:23] = regAddress;
+        oPlbData[24:25] = {regStartCall, regSendMasterAck};
+        oPlbData[26:31] = {1'b0, ackNotDone, dataAckError, addrAckError, regNewDataReceived, bussy};
     end
     else if(iPlbRdCE == 2'b01) begin
-        oPlbData <= {regDivider};
+        oPlbData = {regDivider};
     end
     else 
-        oPlbData <= 0;
+        oPlbData = 0;
 end
 
 assign oPlbError = 0;

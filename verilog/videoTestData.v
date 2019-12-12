@@ -1,4 +1,4 @@
-`include "verilog/common.v"
+`include "common.v"
 
 module videoTestData #(
     parameter H_ACTIVE = 24,

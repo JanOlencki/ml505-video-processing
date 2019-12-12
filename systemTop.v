@@ -120,14 +120,14 @@ videoClkPll videoClkPllInst (
     .CLKOUT2_OUT(videoClk2x_270),
     .LOCKED_OUT(videoClkLocked)
 );
-assign videoRstHard = iTopRst | sysVideoControl[0];
+assign videoRstHard = iTopRst | sysVideoControl[0] | iDipSwitch[4];
 assign videoRstSoft = videoRstHard | ~videoClkLocked | sysVideoControl[1] | iDipSwitch[5];
 assign oDviRst = ~videoRstHard;
 assign oDviClk_p = videoClk2x_90;
 assign oDviClk_n = videoClk2x_270;
-assign sysVideoStatus = {28'b0, videoClkLocked, videoRstSoft, videoRstHard};
-assign oLedGreen[7:4] = {2'b0, videoRstSoft, videoClkLocked};
-assign videoTestData = sysVideoControl[2] | iDipSwitch[4];
+assign sysVideoStatus = {28'b0, videoClkLocked, videoRstHard, videoRstSoft};
+assign oLedGreen[7:4] = {1'b0, videoClkLocked, videoRstHard, videoRstSoft};
+assign videoTestData = sysVideoControl[2] | iDipSwitch[6];
 
 vgaReceiver #(
     .H_ACTIVE(H_ACTIVE),
